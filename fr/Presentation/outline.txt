@@ -1,0 +1,184 @@
+Debogage avancé
+===============
+
+* Plan:
+-------
+
+ * Outils avancés de débogage dans Visual C++
+ * Démystifier le débogueur.
+ 
+***************** Outils avancés de débogage dans Visual C++ *****************
+ 
+* Points d'arrêt:
+-----------------
+
+	* Point de trace.
+		- Attention: ralentit énormément l'exécution.
+	
+	* Point d'arrêts sur adresse mémoire.
+		- Cas d'utilisation: lorsque plusieurs systèmes modifient l'état d'une même zone mémoire.		
+		- Attention: 
+			* Pour créer un point d'arrêt mémoire, il est nécessaire de charger le code exécutable en mémoire *d'abord*.
+			* ASLR (Adress Space Layout Randomization) peut rendre leur utilisation impossible avec Windows 7, le désactiver.
+		- Désactivation/Activation à l'exécution.
+		
+    * Arrêt en fonction du nombre d'occurences.
+	
+ - Autres outils:
+	* import/export de points d'arrêt.
+	* Etiquettes de points d'arrêt (activer/desactiver en bloc).
+
+* Fenêtre d'inspection de valeurs :
+ - Transtypage de valeurs.
+ - Conversion de formats
+ - Affichage de collections.
+ - Exécution de fonctions.
+ - Calculatrice :)
+ - autoexp.dat
+
+* Pointeur sur prochaine instruction:
+ - Utile pour: 
+	* Empêcher l'exécution d'une/plusieurs ligne(s) de code.
+	* Revenir en arrière dans l'exécution du programme: attention cependant aux effets de bord !
+
+* Modules
+
+* Autres outils:
+	- OutputDebugString.
+	-  Threads:
+		* Freeze et Thaw.
+	- Favoris.
+	- Data tips: utiles quand la session de débogage est terminée.	
+	
+***************** Déboguer en dehors des configurations "debug" *****************
+
+* Pourquoi c'est parfois (souvent) nécessaire ?
+ - Les performances du programme en mode débug sont trop mauvaises.
+ - Le bug est reproductible seulement lorsque le code contient des optimisations. 
+ - Le code source n'est pas disponible.
+ 
+* Comment faire ?
+	- Briser le mythe "débogage seulement en configuration Debug".
+    - Symboles.
+	- Désassemblage.
+	
+* Symboles	
+	- Générer les symboles, tout le temps.
+	- Serveur de symboles.
+	- Symboles système.
+	- Stack walking et FPO.
+	- Formats, API.
+	- Fenêtre 'modules'
+	
+* Premier exemple:
+ - Quelles sont les différences entre le débogage en mode debug et en mode release?
+	* En release, impossible d'ajouter un point d'arrêt ailleurs que sur le "return 0".
+	* Valeurs présentes/absentes (debug/release) dans la fenêtre d'inspection des valeurs.
+	* Le "Set next statement" (fleche jaune) ne fonctionne pas "correctement" en release.
+
+ - Pourquoi ces différences ?
+	* Examinons le code assembleur généré pour comprendre !
+		- Options de génération de code à desactiver: /GS (C++ -> Code generation -> Buffer Security Check et Basic Runtime Checks désactivés).
+		- Vue d'ensemble de la fenêtre de désassemblage:
+			* Accéder à une adresse donnée, filler instruction (dont différence release/debug), cacher/afficher noms des symboles.
+		
+* Deuxième exemple:
+ - Quelles sont les différences entre le débogage en mode debug et en mode release?
+	- Comme pour l'exemple numéro 1, la plupart des points d'arrêts ne sont pas valides en mode Release.
+ - Pourquoi ces différences ?
+	- Examinons le code assembleur pour comprendre !
+		* Inlining de fonctions/méthodes.
+ - Quelques remarques:
+	* Pourquoi utiliser des nombres aléatoires ?	
+	* Emplacement en mémoire de la variable statique.
+	* Initialisation des variables statiques. TODO prochaine version: voir http://blogs.msdn.com/b/vcblog/archive/2006/10/20/crt-initialization.aspx
+ 
+* Anatomie d'un programme en cours d'exécution
+ - Programme != Processus
+ - Organisation d'un processus en mémoire:
+	- Séparation code + données constantes + tas + pile
+
+* Fonctionnement d'un processus:
+ - Lecture de l'instruction à l'adresse IP, décodage et exécution:
+	* Entraîne modification de:
+		- la mémoire: tas, pile ou données constantes ou...code.
+		- un ou plusieurs registres.
+ 
+******** Fonctionnement bas niveau de quelques mécanismes courrants **********
+
+	* Affectations, initialisations, operations:
+		- MOV, ADD, SUB
+		- Modes d'adressage: immédiat, registre, mémoire.
+		- Sur x86 il n'est pas possible d'utiliser un accès mémoire <-> mémoire, besoin de passer par un registre intermédiaire.
+		
+	* Structures conditionnelles et itératives.
+		- if, else, else if
+		- Les instructions à connaître: JMP, JNE, CMP
+		- Labels
+		
+	****** Appel de fonctions ******		
+		 
+		* Description superficielle du fonctionnement de la pile: 
+			* Stack, stack frame, contenu d'une stack frame
+			* Evolution de la stack au fil des appels de fonction, stack overflow.
+		
+		* Description détaillée du fonctionnement de la pile:
+			- CALL, RET, PUSH, POP.
+			- EBP, ESP, FPO
+		
+		* Conventions d'appel:
+			- __cdecl
+			- __stdcall
+			- this
+			- Pourquoi plusieurs conventions d'appel differentes ? va_args, bibliotheques de code sans code source disponible.
+		
+		* 
+		- Espace réservé sur la pile pour le "Edit & Continue".
+		- Différence appel de fonctions vs appels de méthodes vs appel de méthodes virtuelles (et utilisation de pointeur sur fonctions).
+		
+		- Code assembleur généré, optimisations.			
+	
+	* Allocation dynamique de mémoire.
+
+- Exercice:
+	* Retrouver les variables locales, les paramètres, l'adresse de retour, et le pointeur this dans une méthode donnée, en configuration release.
+
+* Fiabilité des informations lors du débogage de code optimisé:
+	- Informations fiables:
+		* Layout d'une variable/instance: le compilateur ne peut pas optimiser le layout d'une structure, donc, si la valeur d'un membre d'une instance a une valeur "plausible" et bien spécifique 
+		  pour cette classe, vous avez un bon indice que vous êtes sur la bonne voie (exemple: attribut m_waterLevel d'une instance de World).
+		* vfptr: excellent indice pour savoir si l'on examine le bon type d'objet.
+		* variables statiques/globales: toujours au meme emplacement mémoire.
+		* La valeur de retour d'une méthode/fonction est toujours dans eax/ax/al.
+	- Informations pas fiables:
+		* Callstack.
+		* Tooltip du débogueur, que ce soit en mode "source" ou "desassembleur".
+		* Watch window pour les symboles de variables locales (donner un exemple qui montre les mov supplementaires generes par la config debug).
+		
+* n-ième exemple: différences méthodes "statiques"/méthodes virtuelles
+	- Examinons le code assembleur
+ 
+Autres astuces/informations intéressantes:	
+	* Différence powerpc Vs X86: le nombre de registres fait que sur PowerPC on trouve beaucoup plus de differences entre release et debug.
+	* Retour sur les points d'arrêt conditionnels : comment déclencher un point d'arrêt selon l'appelant.
+	* Comment modifier le code du programme *pendant* l'exécution (NOPer le code).
+	* #pragma optimize on/off
+	*$env=0
+
+ ___TODO prochaine version___ Fonctionnement d'un débogueur:
+ - Un débogueur est un programme comme un autre, mis à part ses privilèges d'exécution.
+ - De quoi un débogueur a besoin pour fonctionner ?
+   * Association entre noms et adresses (variables, fonctions, méthodes): ce qu'on appelle les "symboles" (fichiers .pdb pour visual studio.
+   * Les données doivent être réellement écrites à l'adresse connue par le débogueur.
+   * Sinon, le débogueur doit connaître les optimisations réalisées par le compilateur (utilisation de registres, conventions d'appels non respectées, etc.). Intérêt couplage compilateur/débogueur.    
+
+* Les sujets qui n'ont pas été traités:
+	* Débogage et nombres flottants (registres/instructions/stack spécifiques)
+	* Génération/utilisation de crash dumps.
+	* Génération/utilisation de fichiers .map.
+	* Débogage sur plateforme 64 bits...
+
+* Pour aller plus loin
+	- "Debugging Applications" par John Robbins, Microsoft Press.
+	- "Assembly Language For Intel-Based Computers", Kip R. Irvine, Pearson.
+	- Intel Architecture Software Developer's Manual, en ligne à http://www.intel.com/ .

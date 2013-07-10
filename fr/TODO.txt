@@ -6,3 +6,4 @@
 * Cover differences between processes spawned by the debugger and other processes: http://msdn.microsoft.com/en-us/library/ff538841.aspx
 * Talk about how a debugger can be used to modify the debuggee (rewriting code, data, etc.), not only as examine it
 
+* See in this blog series: http://blogs.msdn.com/b/vcblog/archive/2013/05/29/optimizing-c-code.aspx if there's some content worth using.

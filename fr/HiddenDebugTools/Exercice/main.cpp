@@ -1,3 +1,7 @@
+/*
+* The goal of this exercice is to find the cause of a crash when running the program
+* in the "Release" configuration. You will need to use all the know
+*/
 #include <cstring>
 #include <cstdio>
 

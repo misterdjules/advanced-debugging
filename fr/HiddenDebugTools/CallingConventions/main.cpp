@@ -1,3 +1,7 @@
+/* 
+* This project is a playground to experiment with calling conventions.
+* 
+*/
 #include <cstdlib>
 #include <ctime>
 #include <cstdio>

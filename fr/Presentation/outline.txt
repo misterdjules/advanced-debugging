@@ -1,5 +1,5 @@
-Debogage avancé
-===============
+Debogage avancé avec Visual C++
+===============================
 
 * Plan:
 -------
@@ -52,15 +52,21 @@ Debogage avancé
 	
 ***************** Déboguer en dehors des configurations "debug" *****************
 
-* Pourquoi c'est parfois (souvent) nécessaire ?
+* Pourquoi c'est parfois nécessaire ?
  - Les performances du programme en mode débug sont trop mauvaises.
- - Le bug est reproductible seulement lorsque le code contient des optimisations. 
+ - Le bug est reproductible seulement lorsque le code contient des optimisations (moteur physique, etc.). 
+ - Le bug est un crash très rare et il vient d'être reproduit en mode "release".
  - Le code source n'est pas disponible.
  
 * Comment faire ?
-	- Briser le mythe "débogage seulement en configuration Debug".
+	- Briser le mythe du "débogage seulement en configuration Debug".
     - Symboles.
 	- Désassemblage.
+	
+* Les options de configuration liée au débogage
+	- Configurations par défaut.
+	- Compilation vs Liaison (code linking).
+	- Débogage vs Optimisation.
 	
 * Symboles	
 	- Générer les symboles, tout le temps.
@@ -176,9 +182,12 @@ Autres astuces/informations intéressantes:
 	* Débogage et nombres flottants (registres/instructions/stack spécifiques)
 	* Génération/utilisation de crash dumps.
 	* Génération/utilisation de fichiers .map.
-	* Débogage sur plateforme 64 bits...
+	* Débogage sur plateforme 64 bits.
 
 * Pour aller plus loin
 	- "Debugging Applications" par John Robbins, Microsoft Press.
 	- "Assembly Language For Intel-Based Computers", Kip R. Irvine, Pearson.
 	- Intel Architecture Software Developer's Manual, en ligne à http://www.intel.com/ .
+
+* D'autres méthodes de débogage
+	- git bisect.

@@ -1,6 +1,8 @@
 #ifndef GAME_OBJECT_H_
 #define GAME_OBJECT_H_
 
+#include <Windows.h>
+
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -17,7 +19,7 @@ class PhysicComponent : public Component
 public:
 	virtual void Update()
 	{
-		printf("Performing physic component update...\n");
+		OutputDebugString(L"Performing physic component update...\n");
 	}
 
 	virtual void BeforeDestruction()

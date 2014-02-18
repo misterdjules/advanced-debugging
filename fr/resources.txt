@@ -1,0 +1,5 @@
+* "Debugging C++ with Assembly in Visual Studio": https://www.ibm.com/developerworks/community/wikis/home?lang=en#!/wiki/Debugging%20C__%20with%20Assembly%20in%20Visual%20Studio
+
+* "Intel 64 ad IA-32 Architectures, Software Developer's Manual": http://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-manual-325462.pdf
+
+* "Debugging Optimized Code–New in Visual Studio 2012": http://randomascii.wordpress.com/2013/09/11/debugging-optimized-codenew-in-visual-studio-2012/"

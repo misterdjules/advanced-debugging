@@ -3,7 +3,10 @@
 * 
 * There's a loop that can be used to experiment with breakpoints conditions, traces and actions.
 * There's also a function that changes some data. It is here to experiment with
-* "data" breakpoints. 
+* "data" breakpoints. Finally, we show three examples of how to set breakpoints programmatically:
+* - using inline assembly (note however that __asm int 3 does not work on the x64 platform).
+* - using one of the compilers "intrinsincs": __debugbreak.
+* - using the DebugBreak function.
 *
 * A note about ASLR:
 * ------------------
@@ -16,6 +19,8 @@
 * Last but not least, it is possible to use breakpoints in the "Release" configuration.
 * However, you should run this program using the "Debug" configuration. It makes the experience a lot easier.
 */
+
+#include <Windows.h>
 
 void ChangeData(int& data)
 {
@@ -30,6 +35,16 @@ int main()
 	{
 		foo = foo * loopFoo;
 	}
+
+	// Inline assembly like __asm int 3 below does not work when compiling
+	// for the x64 platform. However, you can use the compiler's intrinsics like __debugbreak:
+	// http://msdn.microsoft.com/en-us/library/vstudio/26td21ds%28v=vs.100%29.aspx	
+	// __asm int 3
+
+	__debugbreak();
+
+	if (IsDebuggerPresent())
+		DebugBreak();
 
 	ChangeData(foo);
 

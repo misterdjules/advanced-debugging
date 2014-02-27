@@ -102,6 +102,7 @@ URL: https://code.google.com/p/io-2012-slides
                 <li>Pour créer un point d'arrêt mémoire, il est nécessaire de charger le code exécutable en mémoire <b>d'abord</b>.</li>
                 <li>Désactivation/Activation à l'exécution.</li>
                 <li>Limite de 4 data breakpoints.</li>
+                <li>Possiblité de placer des points d'arrêts lors de la lecture de données, mais pas disponible directement depuis Visual Studio: nécessite d'écrire du code.</li>
                 <li>Désactiver ASLR (Address Space Layour Randomization) pour ne pas avoir à les re-créer à chaque redémarrage du programme: Properties -> Linker -> Advanced -> Randomized Base Address.</li>
               </ul>
             </ul>
@@ -127,7 +128,32 @@ URL: https://code.google.com/p/io-2012-slides
 
   <slide>
     <aside class="note">
-      <section>        
+      <section>
+        <ul>
+          <li>Montrer avec fenêtre disassembly et en utilisant des breakpoints que le débogueur 
+            écrit des instructions INT 3 dans la mémoire du processus.</li>
+          <li>Registres de débogage limités, ce qui explique la limite de 4 data breakpoints.</li>
+        </ul>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Fonctionnement interne des points d'arrêts</h2>
+    </hgroup>
+    <article>
+      <ul class="build fade">
+        <li>INT 3, aussi utilisée comme "instruction de remplissage" pour les builds "Debug".</li>
+        <li>Registres de débogage.</li>
+        <li>Réécriture du code par le débogueur.</li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li>$clck et $clck = 0 comme solution de "profiling" ad-hoc.</li>
+        </ul>
       </section>
     </aside>
     <hgroup>
@@ -135,13 +161,14 @@ URL: https://code.google.com/p/io-2012-slides
     </hgroup>
     <article>
       <ul class="build fade">
-        <li>Modification de données.</li>
+        <li>Modification de données (fonctionne aussi dans l'affichage contextuel).</li>
         <li>Transtypage de valeurs.</li>
         <li>Arithmétique de pointeurs.</li>
         <li>Conversion de formats.</li>
         <li>Exécution de fonctions.</li>
         <li>Calculatrice :)</li>
-        <li>Personalisation avec autoexp.dat.</li>
+        <li>Personalisation avec autoexp.dat et NatVis.</li>
+        <li>Pseudo-registres: $err, $TIB, $tid, $clck, $env, $cmdline, etc.</li>
       </ul>
     </article>
   </slide>
@@ -235,16 +262,19 @@ URL: https://code.google.com/p/io-2012-slides
           <li>Les options de configuration par défaut sont faites pour être changées.</li>
           <li>On peut avoir n'importe quel nombre de configurations avec le nom que l'on souhaite.</li>
           <li>Optimisations activées n'empêche pas le débogage !</li>
+          <li>Edit & Continue possible seulement sans optimisation.</li>
+          <li>Présenter comment Edit & Continue fonctionne avec projet "Configuration".</li>
           <li>Beaucoup d'options de génération de code ont un impact sur le débogage (génération de symboles, security checks, FPO, etc.)</li>
           <li>Activer:</li>
             <ul>
               <li>Génération de symboles: fichier séparé, donc pas d'impact sur la taille des fichiers distribués.</li>
               <li>Faire démonstration de /d2Zi+ avec projet "d2Zi+" pour avoir de meilleures informations sur le code optimisé sans avoir recours au désassemblage.</li>
             </ul>
-          <li>Désactiver</li>
+          <li>Options à surveiller:</li>
             <ul>
-              <li>FPO (Frame Pointer Omission), sinon callstack n'est pas fiable.</li>
-              <li>/GS et /RTCs (C++ -> Code generation -> Buffer Security Check et Basic Runtime Checks désactivés).</li>
+              <li>FPO (Frame Pointer Omission), peut rendre la callstack non fiable.</li>
+              <li>/RTCs (C++ -> Code generation -> Basic Runtime Checks): utile en debug, coûteuse en release. Montrer le code assembleur généré avec les MOV dest, 0xCCCCCCCC et les "filler instructions" int 3.</li>
+              <li>/GS (C++ -> Code generation -> Buffer Security Check): utile en debug mais polue beaucoup le disassembly en Release.</li>
             </ul>
         </ul>
       </section>
@@ -256,7 +286,8 @@ URL: https://code.google.com/p/io-2012-slides
       <ul class="build fade">
         <li>Configurations par défaut.</li>
         <li>Compilation vs Liaison (code linking).</li>
-        <li>Débogage vs Optimisation.</li>
+        <li>Plateformes: x86 Vs x64.</li>
+        <li>Débogage vs Optimisation: runtime checks, Edit & Continue.</li>
         <li>Option "/d2Zi+".</li>
       </ul>
     </article>
@@ -426,9 +457,7 @@ URL: https://code.google.com/p/io-2012-slides
       <section>         
         <ul>
           <li>
-          Il est temps maintenant de se sentir à l'aise dans le débogage en assembleur. Nous allons
-          donc introduire comment les structures fondamentales des programmes écrits en C++ sont traduites
-          en assembleur.
+          Il est temps maintenant de se sentir à l'aise dans le débogage en assembleur. Il n'est pas nécessaire d'être un expert en assembleur pour être capable de déboguer avec le désassembleur. Nous allons donc introduire comment les structures fondamentales des programmes écrits en C++ sont traduites en assembleur.
           </li>
         </ul>                      
       </section>
@@ -502,8 +531,9 @@ URL: https://code.google.com/p/io-2012-slides
   <slide>
     <aside class="note">
       <section>         
-        <ul>          
-        </ul>                      
+        <ul>
+          <li>Voir projet "CallingConventions".</li>
+        </ul>
       </section>
     </aside>
     <hgroup>
@@ -517,7 +547,6 @@ URL: https://code.google.com/p/io-2012-slides
         <li>Accès aux paramètres + locales: EBP, ESP, FPO.</li>
         <li>Conventions d'appel: cdecl, stdcall (aka WINAPI), this.</li>
         <li>Pourquoi plusieurs conventions d'appel ?</li>
-        <li>Edit & Continue.</li>
         <li>Appel de fonctions Vs appel de méthode Vs appel de méthode virtuelle.</li>
       </ul>
     </article>
@@ -595,7 +624,6 @@ URL: https://code.google.com/p/io-2012-slides
       <ul class="build fade">
         <li>Comment déclencher un point d'arrêt selon l'appelant (EBP, ESP).</li>
         <li>#pragma optimize on/off.</li>
-        <li>Afficher les variables d'environnement: $env=0.</li>
       </ul>
     </article>
   </slide>

@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicDifferencesDebugVsRele
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CallingConventions", "CallingConventions\CallingConventions.vcxproj", "{63D3C8F7-C4E8-4E7F-805E-BD3BF2356C6A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercice", "Exercice\Exercice.vcxproj", "{5D210E5C-B478-4068-916E-C7906E696E20}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Breakpoints", "Breakpoints\Breakpoints.vcxproj", "{15282F63-0082-4AC2-881F-27FDAA06585B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SetNextStatement", "SetNextStatement\SetNextStatement.vcxproj", "{24D5A50B-DB76-475F-8921-48B48904CEDF}"
@@ -55,14 +53,6 @@ Global
 		{63D3C8F7-C4E8-4E7F-805E-BD3BF2356C6A}.Release|Win32.Build.0 = Release|Win32
 		{63D3C8F7-C4E8-4E7F-805E-BD3BF2356C6A}.Release|x64.ActiveCfg = Release|x64
 		{63D3C8F7-C4E8-4E7F-805E-BD3BF2356C6A}.Release|x64.Build.0 = Release|x64
-		{5D210E5C-B478-4068-916E-C7906E696E20}.Debug|Win32.ActiveCfg = Debug|Win32
-		{5D210E5C-B478-4068-916E-C7906E696E20}.Debug|Win32.Build.0 = Debug|Win32
-		{5D210E5C-B478-4068-916E-C7906E696E20}.Debug|x64.ActiveCfg = Debug|x64
-		{5D210E5C-B478-4068-916E-C7906E696E20}.Debug|x64.Build.0 = Debug|x64
-		{5D210E5C-B478-4068-916E-C7906E696E20}.Release|Win32.ActiveCfg = Release|Win32
-		{5D210E5C-B478-4068-916E-C7906E696E20}.Release|Win32.Build.0 = Release|Win32
-		{5D210E5C-B478-4068-916E-C7906E696E20}.Release|x64.ActiveCfg = Release|x64
-		{5D210E5C-B478-4068-916E-C7906E696E20}.Release|x64.Build.0 = Release|x64
 		{15282F63-0082-4AC2-881F-27FDAA06585B}.Debug|Win32.ActiveCfg = Debug|Win32
 		{15282F63-0082-4AC2-881F-27FDAA06585B}.Debug|Win32.Build.0 = Debug|Win32
 		{15282F63-0082-4AC2-881F-27FDAA06585B}.Debug|x64.ActiveCfg = Debug|x64

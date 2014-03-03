@@ -21,6 +21,7 @@
 */
 
 #include <Windows.h>
+#include <cassert>
 
 void ChangeData(int& data)
 {

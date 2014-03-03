@@ -105,6 +105,27 @@
 * 00A61349 8B E5                mov         esp,ebp  
 * 00A6134B 5D                   pop         ebp  
 * 00A6134C C2 08 00             ret         8  
+* 
+* Note also how in the code above, the compiler generates assembly code to allow the debug to
+* retrieve the this pointer on the stack, regardless of how the ECX register is used later on
+* in the method implementation:
+* 
+* 00A61333 51                   push        ecx  
+* 00A61334 C7 45 FC CC CC CC CC mov         dword ptr [ebp-4],0CCCCCCCCh  
+* 00A6133B 89 4D FC             mov         dword ptr [ebp-4],ecx
+*
+* This is what allows you to type "this" in the watch window and always get the right
+* pointer to the current instance. In optimized builds, this code wouldn't be generated, and
+* typing "this" in the watch window would most likely not give you the right pointer to the
+* current instance. Instead, you would need to retrieve it yourself by investigating where 
+* the compiler saved it.
+* 
+* Virtual methods:
+* ----------------
+*
+* Virtual methods use the same __thiscall calling conventions, and do not represent a different
+* calling conventions by themselves. However, they show another technical way to call methods which
+* has a direct impact on performance and debugging.
 */
 
 #include <cstdlib>
@@ -126,12 +147,16 @@ int NextRandomValue()
 
 int __cdecl CdeclSum(int fooParam1, int fooParam2)
 {
-	return fooParam1 + fooParam2;
+	int local1 = NextRandomValue();
+
+	return local1 + fooParam1 + fooParam2;
 }
 
 int __stdcall StdcallSum(int fooParam1, int fooParam2)
 {
-	return fooParam1 + fooParam2;
+	int local1 = NextRandomValue();
+	
+	return local1 + fooParam1 + fooParam2;
 }
 
 int VarArgsSum(unsigned int nbParams, ...)
@@ -157,7 +182,23 @@ public:
 
 	int Sum(int param1, int param2)
 	{
-		return m_seed + param1 + param2;
+		int local1 = NextRandomValue();
+
+		return local1 + m_seed + param1 + param2;
+	}
+
+	virtual int VirtualSum(int param1, int param2)
+	{
+		int local1 = NextRandomValue();
+
+		return local1 + m_seed + param1 + param2;
+	}
+
+	virtual int AnotherVirtualSum(int param1, int param2)
+	{
+		int local1 = NextRandomValue();
+
+		return local1 + m_seed + param1 + param2;
 	}
 
 private:
@@ -166,9 +207,11 @@ private:
 
 int main()
 {
-	MyClass myInstance(42);
+	MyClass* myInstance = new MyClass(42);
 	
-	printf("MyClass::Sum: %d\n", myInstance.Sum(NextRandomValue(), NextRandomValue()));
+	printf("MyClass::Sum: %d\n", myInstance->Sum(NextRandomValue(), NextRandomValue()));
+	printf("MyClass::VirtualSum: %d\n", myInstance->VirtualSum(NextRandomValue(), NextRandomValue()));
+	printf("MyClass::VirtualSum: %d\n", myInstance->AnotherVirtualSum(NextRandomValue(), NextRandomValue()));
 	printf("Cdecl Sum: %d\n", CdeclSum(NextRandomValue(), NextRandomValue()));
 	printf("Stdcall Sum: %d\n", StdcallSum(NextRandomValue(), NextRandomValue()));
 	printf("VarArgs Sum: %d\n", VarArgsSum(3, NextRandomValue(), NextRandomValue(), NextRandomValue()));

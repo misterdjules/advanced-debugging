@@ -22,6 +22,7 @@
     <ProjectGuid>{B4A819E2-6EA1-4BE9-98E3-8D698AE9AE17}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>WatchWindowEx1</RootNamespace>
+    <ProjectName>WatchWindow</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -85,6 +86,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

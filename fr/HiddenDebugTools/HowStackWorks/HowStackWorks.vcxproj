@@ -22,6 +22,7 @@
     <ProjectGuid>{F7A666A5-AE68-4BC1-A177-36069656F6F4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>StackDetailed</RootNamespace>
+    <ProjectName>HowStackWorks</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -152,6 +152,8 @@ URL: https://code.google.com/p/io-2012-slides
     <aside class="note">
       <section>
         <ul>
+          <li>Utiliser projet "WatchWindow".</li>
+          <li>NatVis ne fonctionne pas si Edit & Continue activé.</li>
           <li>$clck et $clck = 0 comme solution de "profiling" ad-hoc.</li>
         </ul>
       </section>
@@ -161,9 +163,8 @@ URL: https://code.google.com/p/io-2012-slides
     </hgroup>
     <article>
       <ul class="build fade">
-        <li>Modification de données (fonctionne aussi dans l'affichage contextuel).</li>
-        <li>Transtypage de valeurs.</li>
-        <li>Arithmétique de pointeurs.</li>
+        <li>Modification de données.</li>
+        <li>Manipulation de pointeurs: transtypage, opérateur "&" et arithmétique.</li>
         <li>Conversion de formats.</li>
         <li>Exécution de fonctions.</li>
         <li>Calculatrice :)</li>
@@ -262,8 +263,8 @@ URL: https://code.google.com/p/io-2012-slides
           <li>Les options de configuration par défaut sont faites pour être changées.</li>
           <li>On peut avoir n'importe quel nombre de configurations avec le nom que l'on souhaite.</li>
           <li>Optimisations activées n'empêche pas le débogage !</li>
-          <li>Edit & Continue possible seulement sans optimisation.</li>
-          <li>Présenter comment Edit & Continue fonctionne avec projet "Configuration".</li>
+          <li>Utiliser projet "EditAndContinue".</li>
+          <li>Edit & Continue possible seulement sans optimisation et si au moins un fichier .h présent.</li>
           <li>Beaucoup d'options de génération de code ont un impact sur le débogage (génération de symboles, security checks, FPO, etc.)</li>
           <li>Activer:</li>
             <ul>
@@ -532,7 +533,8 @@ URL: https://code.google.com/p/io-2012-slides
     <aside class="note">
       <section>         
         <ul>
-          <li>Voir projet "CallingConventions".</li>
+          <li>Voir projet "CallingConventions" et "VirtualMethods".</li>
+          <li>Calling conventions utiles pour appels inter-DLLs.</li>
         </ul>
       </section>
     </aside>

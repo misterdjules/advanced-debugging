@@ -4,9 +4,9 @@
  *
  * - Symbols generation:
  *
- * - Edit & Continue:
- *
  * - Run time checks:
+ *
+ * - FPO:
  *
  * - Platforms:
 */

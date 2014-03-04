@@ -101,7 +101,7 @@ URL: https://code.google.com/p/io-2012-slides
               <ul>Attention: 
                 <li>Pour créer un point d'arrêt mémoire, il est nécessaire de charger le code exécutable en mémoire <b>d'abord</b>.</li>
                 <li>Désactivation/Activation à l'exécution.</li>
-                <li>Limite de 4 data breakpoints.</li>
+                <li>Limite "hardware" de 4 data breakpoints.</li>
                 <li>Possiblité de placer des points d'arrêts lors de la lecture de données, mais pas disponible directement depuis Visual Studio: nécessite d'écrire du code.</li>
                 <li>Désactiver ASLR (Address Space Layour Randomization) pour ne pas avoir à les re-créer à chaque redémarrage du programme: Properties -> Linker -> Advanced -> Randomized Base Address.</li>
               </ul>
@@ -122,28 +122,6 @@ URL: https://code.google.com/p/io-2012-slides
         <li>Arrêt en fonction du nombre d'occurence, etc.</li>
         <li>Déclencher un point d'arrêt programmatiquement.</li>
         <li>Export/import, étiquettes.</li>
-      </ul>
-    </article>
-  </slide>
-
-  <slide>
-    <aside class="note">
-      <section>
-        <ul>
-          <li>Montrer avec fenêtre disassembly et en utilisant des breakpoints que le débogueur 
-            écrit des instructions INT 3 dans la mémoire du processus.</li>
-          <li>Registres de débogage limités, ce qui explique la limite de 4 data breakpoints.</li>
-        </ul>
-      </section>
-    </aside>
-    <hgroup>
-      <h2>Fonctionnement interne des points d'arrêts</h2>
-    </hgroup>
-    <article>
-      <ul class="build fade">
-        <li>INT 3, aussi utilisée comme "instruction de remplissage" pour les builds "Debug".</li>
-        <li>Registres de débogage.</li>
-        <li>Réécriture du code par le débogueur.</li>
       </ul>
     </article>
   </slide>
@@ -232,7 +210,7 @@ URL: https://code.google.com/p/io-2012-slides
     <article>
       <ul class="build fade">
         <li>Les performances du programme en mode débug sont trop mauvaises pour être productif (temps de chargement trop longs).</li>
-        <li>Le bug est reproductible seulement lorsque le code contient des optimisations (framerate dependant).</li>
+        <li>Le bug est reproductible seulement lorsque le code contient des optimisations (dépendant du framerate).</li>
         <li>Un crash est très rare et il vient d'arriver...avec l'exécutable optimisé.</li>
         <li>Le code source n'est pas disponible.</li>
       </ul>
@@ -288,7 +266,7 @@ URL: https://code.google.com/p/io-2012-slides
         <li>Configurations par défaut.</li>
         <li>Compilation vs Liaison (code linking).</li>
         <li>Plateformes: x86 Vs x64.</li>
-        <li>Débogage vs Optimisation: runtime checks, Edit & Continue.</li>
+        <li>Débogage vs Optimisation: protections à l'exécution, contrôles de sécurité, Edit & Continue.</li>
         <li>Option "/d2Zi+".</li>
       </ul>
     </article>
@@ -320,7 +298,9 @@ URL: https://code.google.com/p/io-2012-slides
   <slide>
     <aside class="note">
       <section>                
-        
+        Attention: c'est un modèle idéalisé: en réalité chaque OS apporte ses variantes.
+        Exemple: Windows 7 et le tas qui est dans les adresses plus hautes que la pile.
+        Nous verrons au slide suivant comment Windows 7 organise ses processus en mémoire.
       </section>
     </aside>
     <hgroup>
@@ -335,6 +315,8 @@ URL: https://code.google.com/p/io-2012-slides
     <aside class="note">
       <section>        
         <ul>
+          <li>Utiliser projet "MemoryLayout" pour démo de l'emplacement en mémoire des variables locales, statiques, du code exécuté, des données allouées avec new.</li>
+          <li>Visualiser layout avec VMMap.</li>        
           <li>Demo de ASLR (Address Space Layout Randomization).</li>
           <li>Code comme données: illustrer avec écriture de NOP. Inscrire une instruction nop pour éviter assertion ou crash. Utiliser projet "Set Next Statement". Avec VStudio 2013, l'écriture de NOP pour instructions plus "grosses" sembler poser problème. Passer en mode 8 bytes dans la fenêtre "memory", editer les instructions avec "edit value" pour les changer en NOOP one-byte (0x90) une première fois, effectuer un step next, puis enfin réécrire les bytes qui n'ont pas été pris en compte de la même façon.
           </li>
@@ -368,7 +350,10 @@ URL: https://code.google.com/p/io-2012-slides
 
   <slide>
     <aside class="note">
-      <section>                
+      <section>
+        <ul>
+          <li>Faire démo du cycle read/fetch/execute/write dans le débogueur.</li>
+        </ul>                
       </section>
     </aside>
     <hgroup>
@@ -390,7 +375,7 @@ URL: https://code.google.com/p/io-2012-slides
     <aside class="note">
       <section> 
         <ul>
-          <li>Utiliser le projet "AssemblyDebuggingEx1" comme sand box.</li>
+          <li>Utiliser le projet "BasicDifferencesDebugVsRelease" comme sand box.</li>
           <li>Présentation détaillée des fenêtes mémoire, modules et registres.</li>
         </ul>               
       </section>
@@ -411,7 +396,9 @@ URL: https://code.google.com/p/io-2012-slides
     <aside class="note">
       <section>         
         <ul>
-          <li>Utiliser le projet "AssemblyDebuggingEx1" comme sand box.</li>
+          <li>Utiliser le projet "BasicDifferencesDebugVsRelease" et "BasicDifferencesDebugVsRelease2" comme sand box.</li>
+          <li>Ne pas oublier de désactiver les options de génération de code: /GS et /RTCs en
+            configuration Debug pour un code assembleur plus clair.</li>
           <li>Ne pas oublier de désactiver les options de génération de code: /GS et /RTCs.</li>
           <li>Vue d'ensemble de la fenêtre de désassemblage: navigation, options.
           <li>Instructions de remplissage.
@@ -419,35 +406,15 @@ URL: https://code.google.com/p/io-2012-slides
       </section>
     </aside>
     <hgroup>
-      <h2>Premier exemple</h2>
+      <h2>Différences Debug/Release</h2>
     </hgroup>
     <article>
       <ul class="build fade">
         <li>En release, impossible d'ajouter un point d'arrêt ailleurs que sur le "return 0".</li>
         <li>Valeurs présentes/absentes (debug/release) dans la fenêtre d'inspection des valeurs.</li>
         <li>Le "Set next statement" (flèche jaune) ne fonctionne pas "correctement" en release.</li>
-      </ul>
-    </article>
-  </slide>
-
-  <slide>
-    <aside class="note">
-      <section>         
-        <ul>
-          <li>Utiliser le projet "AssemblyDebuggingEx2" comme sand box.</li>
-          <li>Ne pas oublier de désactiver les options de génération de code: /GS et /RTCs.</li>          
-        </ul>                      
-      </section>
-    </aside>
-    <hgroup>
-      <h2>Deuxième exemple</h2>
-    </hgroup>
-    <article>
-      <ul class="build fade">
-        <li>Comme pour l'exemple numéro 1, la plupart des points d'arrêts ne sont pas valides en mode Release.
-        <li>Inlining de fonctions/méthodes.
-        <li>Pourquoi utiliser des nombres aléatoires ?      
-        <li>Emplacement en mémoire de la variable statique.
+        <li>Inlining de fonctions/méthodes.</li>
+        <li>Pourquoi utiliser des nombres aléatoires ?</li>
       </ul>
     </article>
   </slide>
@@ -539,7 +506,7 @@ URL: https://code.google.com/p/io-2012-slides
       </section>
     </aside>
     <hgroup>
-      <h2>Appels de fonction</h2>
+      <h2>Appel de fonction</h2>
     </hgroup>
     <article>
       <ul class="build fade">
@@ -550,6 +517,28 @@ URL: https://code.google.com/p/io-2012-slides
         <li>Conventions d'appel: cdecl, stdcall (aka WINAPI), this.</li>
         <li>Pourquoi plusieurs conventions d'appel ?</li>
         <li>Appel de fonctions Vs appel de méthode Vs appel de méthode virtuelle.</li>
+      </ul>
+    </article>
+  </slide>
+
+  <slide>
+    <aside class="note">
+      <section>
+        <ul>
+          <li>Montrer avec fenêtre disassembly et en utilisant des breakpoints que le débogueur 
+            écrit des instructions INT 3 dans la mémoire du processus.</li>
+          <li>Registres de débogage limités, ce qui explique la limite de 4 data breakpoints.</li>
+        </ul>
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Fonctionnement interne des points d'arrêts</h2>
+    </hgroup>
+    <article>
+      <ul class="build fade">
+        <li>INT 3, aussi utilisée comme "instruction de remplissage" pour les builds "Debug".</li>
+        <li>Registres de débogage.</li>
+        <li>Réécriture du code par le débogueur.</li>
       </ul>
     </article>
   </slide>
@@ -570,25 +559,6 @@ URL: https://code.google.com/p/io-2012-slides
         <li>vfptr: excellent indice pour savoir si l'on examine le bon type d'objet.</li>
         <li>variables statiques/globales: toujours au meme emplacement mémoire.</li>
         <li>La valeur de retour d'une méthode/fonction est toujours dans eax/ax/al.</li>
-      </ul>
-    </article>
-  </slide>
-
-  <slide>
-    <aside class="note">
-      <section>         
-        <ul>          
-        </ul>                      
-      </section>
-    </aside>
-    <hgroup>
-      <h2>Informations <b>pas</b> fiables</h2>
-    </hgroup>
-    <article>
-      <ul class="build fade">
-        <li>Callstack: absence de symboles + FPO, inlining, etc.</li>
-        <li>Tooltip du débogueur, que ce soit en mode "source" ou "desassembleur".</li>
-        <li>Watch window pour les symboles de variables locales/paramètres.</li>
       </ul>
     </article>
   </slide>
@@ -652,7 +622,7 @@ URL: https://code.google.com/p/io-2012-slides
         <li>Nombres flottants (registres/instructions/stack spécifiques)</li>
         <li>Génération/utilisation de crash dumps.</li>
         <li>Génération/utilisation de fichiers .map.</li>
-        <li>Débogage sur plateforme 64 bits...</li>
+        <li>Débogage sur plateforme 64 bits.</li>
       </ul>
     </article>
   </slide>

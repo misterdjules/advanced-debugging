@@ -3,8 +3,11 @@
  *
  * !!! WARNING !!! Note that Edit & Continue is *not* compatible with NatVis.
  *
- *
 */
+
+// This header file is necessary to make Edit & Continue work:
+// without it, Edit & Continue is *not* available, even though it is activated in 
+// Visual Studio settings
 #include "Dummy.h"
 
 void ChangeData(int& data)

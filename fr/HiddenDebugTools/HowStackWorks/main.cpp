@@ -1,3 +1,9 @@
+/*
+ * This project illustrates the basics of how the stack works. For more details
+ * regarding calling conventions, open the project named "CallingConventions" in the same
+ * solution.
+*/
+
 #include <cstdlib>
 #include <ctime>
 #include <cstdio>

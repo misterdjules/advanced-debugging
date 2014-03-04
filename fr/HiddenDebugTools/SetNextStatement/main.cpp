@@ -1,6 +1,11 @@
 /*
 * This project can be used as a playground to try manipulating the next instruction(s) to
-* be executed by the CPU. The "Set Next Statement" tool available in the right-click menu during
+* be executed by the CPU. 
+* 
+* !!! WARNING !!! This project is meant to be used with the "Debug" configuration: the "Release"
+* configuration would optimize most of the code to generate only the code for the "return 0" statement.
+*
+* The "Set Next Statement" tool available in the right-click menu during
 * a debugging session is the primary tool to do this. Another way to alter next instruction(s) is to write
 * into the process' memory where the code is loaded, and replace next instruction(s) with other instructions that do nothing (e.g the x86 NOP instruction).
 *

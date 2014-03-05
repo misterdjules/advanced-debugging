@@ -219,6 +219,27 @@ URL: https://code.google.com/p/io-2012-slides
 
   <slide>
     <aside class="note">
+      <section>         
+        <ul>
+          <li>Utiliser le projet "BasicDifferencesDebugVsRelease", "HowStackWorks" et "VirtualMethods" comme sand box.</li>
+          <li>Montrer que F10, breakpoints, watch window et affichage du pointeur this ne fonctionnent pas "correctement" avec la configuration Release.</li>
+        </ul>                      
+      </section>
+    </aside>
+    <hgroup>
+      <h2>Pourquoi c'est difficile ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build fade">
+        <li>En release, impossible d'ajouter un point d'arrêt ailleurs que sur le "return 0".</li>
+        <li>Valeurs présentes/absentes (debug/release) dans la fenêtre d'inspection des valeurs.</li>
+        <li>Le "Set next statement" (flèche jaune) ne fonctionne pas "correctement" en release.</li>
+      </ul>
+    </article>
+  </slide>
+  
+  <slide>
+    <aside class="note">
       <section>        
       </section>
     </aside>

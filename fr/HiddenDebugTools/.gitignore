@@ -1,7 +1,0 @@
-*.sdf
-Debug/
-Release/
-*.vcxproj.filters
-*.opensdf
-*.v12.suo
-*.vcxproj.user

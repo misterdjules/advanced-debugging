@@ -1,0 +1,11 @@
+# Prologue
+
+In 2008, I started working on a video game named [Assassin's Creed II](http://en.wikipedia.org/wiki/Assassin%27s_Creed_II) at Ubisoft Montreal. It is a big open world adventure/action game with a lot of characters on screen at any given time. Developers would most of the time test new features and bugs within small test worlds. Debug builds of the tools used to make the game were able to load these test worlds reasonably quickly. For a while I was using "Debug" (unoptimized) builds when developping new features or investigating bugs, and "Release" (optimized) builds when I needed an extra boost in performance.
+
+However, real players wouldn't be very happy to wander around cold and mostly empty test worlds, they would play in the real, big open worlds that Assassin's Creed has been known for. Using a debug build, real game worlds actually couldn't be loaded completely on PCs, let alone on game consoles with more constrained hardware resources. Developers had to use heavily optimized builds to load even small portions of these worlds and investigate bugs that were happening in the game. Moreover, testers who were playing the real game on actual game consoles had to use optimized builds.
+
+Soon enough, we would get reports of issues and crash dumps only happening for optimized builds. When investigating a bug or a crash with an optimized build, tools that are useful with unoptimized builds quickly show their limits, and I had to develop advanced debugging skills to be able to fix these issues.
+
+With the help of my fellow senior programmers, I learned how to use lots of Visual C++'s advanced debugging tools and how to master fundamental concepts of assembly language. Both allowed me to make sense of what was going on when debugging optimized builds. As a result, I was able to debug any issue or crash that seemed impossible to investigate before. I was also having a lot of fun using these tools and learning about low level hardware and software mechanisms.
+
+Since then, these skills have proven to be invaluable, especially during hard times. When a software is ready to ship and I have to debug a last minute issue that happens only with optimized builds, I know I can rely on Visual C++'s advanced tools and my knowledge of assembly to go home early.

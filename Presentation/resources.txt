@@ -3,3 +3,6 @@
 * "Intel 64 and IA-32 Architectures, Software Developer's Manual": http://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-manual-325462.pdf
 
 * "Debugging Optimized Code–New in Visual Studio 2012": http://randomascii.wordpress.com/2013/09/11/debugging-optimized-codenew-in-visual-studio-2012/"
+
+* "Assembly language for Power Architecture" series:
+http://www.ibm.com/developerworks/linux/library/l-powasm1/index.html . Useful for assembly debugging on Xenon (Xbox 360) and PS3.

@@ -1,0 +1,29 @@
+-  Split assembly debugging into two parts: "assembly language fundamentals for debugging" and "reverse engineering".
+- /OPT:REF and /OPT:ICF to avoid bloating the OBJ files when building release builds with /DEBUG option set for the linker to generate debug symbols in pdb files.
+- OutputDebugString goes through the debugger/debuggee communication system and freezes all the debuggee's threads: it makes the program behavior very different from when OutputDebugString calls aren't used.
+- Advanced breakpoint syntax:
+  - A.dll and B.dll defines the same function "Foo" in the same file Foo.cpp, but only the one in B.dll crashes.
+  - However, A.dll's Foo is called a million times and setting the breakpoint using F9 would break
+  in both DLLs.
+  - Using the advanced syntax {,Foo.cpp,B.dll}Foo fixes this issue, it allows to only break in B.dll's Foo.
+- Mention that breakpoints' hit count is not specific to breakpoints within loops.
+- Mention the current hit count available in the breakpoints window for breakpoints that have a hit count condition.
+- Add string comparison expression to the breakpoint's expression evaluator used for breakpoint conditions.
+- Mention the use of "Has changed" in the Hit Condition dialog for breakpoints as a way to determine when
+a variable has changed when the breakpoint is hit. Explain the differences with data breakpoints: the breakpoint _has_ to be hit, whereas data breakpoints can trigger at anytime.
+- Mention how setting thread names from within code is useful to keep the same breakpoints' filters regarding the thread names accross debugging sessions.
+- Mention that data breakpoints only trigger when new data is written to the memory that is watched. If a data breakpoint is hit when we write "Foo" into an array, it won't trigger again if we write "Foo" again in the same array.
+- Add content about how to debug exceptions.
+- Mention that you can edit registers' content in the registers window.
+- Mention memory size specifiers "BYTE PTR", "DWORD PTR", etc. There's no such thing as a type in assembly. 
+  It's only about the size of data.
+- Mention effective address in the registers window "Address being calculated = Value at that address".
+- Use 1 column for the memory window when showing up how the stack works so that it really looks like a "real" stack.
+- Add fastcall and thiscall with variable parameters in CallingConventions project.
+- Use the mnemonic "Parameters are Positive" to remember that function parameters are stored at positive offsets
+from EBP.
+- Add a section about debugging function/method calls and more generally how the stack works when building
+for the x64 platform.
+- Mention that XOR is used as a zero-initialization fast tool.
+- Mention that the form call dword ptr ds:[someaddress] is used for external functions using the Import Address Table (like libc functions or Windows API functions).
+- Mention MOVS, STOS, SCAS and REP instructions.

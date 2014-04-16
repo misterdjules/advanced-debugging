@@ -1,16 +1,29 @@
 Top priority:
 -------------
 * Resources to review:
- - http://www.wintellectnow.com/Videos/Watch/operating-system-support-and-debugger-concepts
- - http://www.wintellectnow.com/Videos/Watch/visual-studio-native-expression-evaluation
- - http://www.wintellectnow.com/Course/Detail/mastering-windows-debugging
- - http://www.slideshare.net/goldshtn/vs-debugging-tricks
- - http://msdn.microsoft.com/en-us/magazine/dd252945.aspx
- - http://www.codeproject.com/Articles/2943/An-introduction-to-debugging-in-MSVC-using-Pseudor
- - http://www.codeproject.com/Articles/28071/Toggle-hardware-data-read-execute-breakpoints-prog?fid=1519331&df=90&mpp=10&noise=1&prof=True&sort=Position&view=Normal&spc=Relaxed&fr=11
- - http://www.ksyash.com/2011/01/210/
- - http://www.wintellect.com/blogs/jrobbins/pdb-files-what-every-developer-must-know
- - http://msdn.microsoft.com/en-us/magazine/cc301374.aspx
+ * PowerPC:
+ 	- http://www.altdevblogaday.com/2011/07/25/debugging-techniques-for-optimized-ppc-builds/
+ 	- https://www.horizonmb.com/threads/99929-PowerPC-Beginner-s-Tutorial
+ 	- http://www.ibm.com/developerworks/linux/library/l-powasm4/index.html
+ 	- http://www.ibm.com/developerworks/library/l-ppc/
+ * General:
+	 - _vectorcall calling convention: http://blogs.msdn.com/b/vcblog/archive/2013/07/12/introducing-vector-calling-convention.aspx
+	 - http://www.plantation-productions.com/Webster/
+	 - http://msdn.microsoft.com/en-us/library/h2k70f3s.aspx
+	 - http://analyze-v.com/?p=468
+	 - http://blogs.msdn.com/b/oldnewthing/archive/2011/03/02/10135747.aspx?Redirected=true
+	 - http://blogs.msdn.com/b/ntdebugging/archive/2009/01/09/challenges-of-debugging-optimized-x64-code.aspx
+	 - http://msdn.microsoft.com/en-us/magazine/cc301808.aspx
+	 - http://msdn.microsoft.com/en-us/magazine/cc301805.aspx
+	 - http://www.slideshare.net/goldshtn/vs-debugging-tricks
+	 - http://msdn.microsoft.com/en-us/magazine/dd252945.aspx
+	 - http://www.codeproject.com/Articles/2943/An-introduction-to-debugging-in-MSVC-using-Pseudor
+	 - http://www.codeproject.com/Articles/28071/Toggle-hardware-data-read-execute-breakpoints-prog?fid=1519331&df=90&mpp=10&noise=1&prof=True&sort=Position&view=Normal&spc=Relaxed&fr=11
+	 - http://www.ksyash.com/2011/01/210/
+	 - http://www.wintellect.com/blogs/jrobbins/pdb-files-what-every-developer-must-know
+	 - http://msdn.microsoft.com/en-us/magazine/cc301374.aspx
+	 - http://msdn.microsoft.com/en-us/library/7kcdt6fy.aspx
+	 - http://www.ray.masmcode.com/fpu.html
  
 * Add a section in the presentation to talk about finding our way on the stack in debug mode, and then how to apply this knowledge to guess compiler's optimizations. 
 * Disable /RTCs and /GS to make generated assembly code easier to read and illustrate in disassembly what it does. Mention this somewhere in the presentation. Mention /GS too.

@@ -1,0 +1,50 @@
+# Practical introduction to assembly using Visual C++'s disassembler
+
+{title="Test MASM sample", lang=nasm}
+~~~~
+int main()
+{
+ push        ebp  
+ mov         ebp,esp  
+ push        0FFFFFFFFh  
+ push        offset __ehhandler$_main (109393Bh)  
+ mov         eax,dword ptr fs:[00000000h]  
+ push        eax  
+ sub         esp,10h  
+ mov         eax,dword ptr [___security_cookie (1097000h)]  
+ xor         eax,ebp  
+ push        eax  
+ lea         eax,[ebp-0Ch]  
+ mov         dword ptr fs:[00000000h],eax  
+	MyClass* myInstance = new MyClass(42);
+ push        8  
+ call        operator new (1091422h)  
+ add         esp,4  
+ mov         dword ptr [ebp-14h],eax  
+ mov         dword ptr [ebp-4],0  
+ cmp         dword ptr [ebp-14h],0  
+ je          main+4Eh (109119Eh)  
+ push        2Ah  
+ mov         ecx,dword ptr [ebp-14h]  
+ call        MyClass::MyClass (109102Dh)  
+ mov         dword ptr [ebp-18h],eax  
+ jmp         main+55h (10911A5h)  
+ mov         dword ptr [ebp-18h],0  
+ mov         eax,dword ptr [ebp-18h]  
+ mov         dword ptr [ebp-1Ch],eax  
+ mov         dword ptr [ebp-4],0FFFFFFFFh  
+ mov         ecx,dword ptr [ebp-1Ch]  
+ mov         dword ptr [ebp-10h],ecx  
+	
+	printf("MyClass::Sum: %d\n", myInstance->Sum(NextRandomValue(), NextRandomValue()));
+ call        NextRandomValue (109100Fh)  
+ push        eax  
+ call        NextRandomValue (109100Fh)  
+ push        eax  
+ mov         ecx,dword ptr [ebp-10h]  
+ call        MyClass::Sum (109101Eh)  
+ push        eax  
+ push        offset ___xi_z+13Ch (1095858h)  
+ call        dword ptr [__imp__printf (10980C8h)]  
+ add         esp,8  
+~~~~

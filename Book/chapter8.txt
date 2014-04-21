@@ -1,0 +1,12 @@
+# Bibliography {#chapter-bibliography}
+
+## Hardware architecture
+
+## Assembly language
+
+* [Assembly Language for x86 Processors](http://www.pearsonhighered.com/educator/product/Assembly-Language-for-x86-Processors/9780133769401.page): A very complete tutorial on x86 assembly that can also be used as a reference. This edition has been updated in 2014.
+
+## Debugging
+
+* [Debugging Applications by John Robbins](http://www.amazon.com/gp/product/0735608865): an excellent book that covers debugging debugging methodology. It also covers advanced native debugging tools, but it is very much outdated now.
+* [Debugging Microsoft .NET 2.0 Applications](Debugging Microsoft .NET 2.0 Applications): the updated version of [Debugging Applications](http://www.amazon.com/gp/product/0735608865) by the same author. It covers the methodology of debugging, but instead of covering advanced native debugging tools like the original edition, it covers only .NET applications debugging.

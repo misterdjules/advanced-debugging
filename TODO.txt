@@ -1,5 +1,7 @@
 Top priority:
 -------------
+* Complete FPU project.
+
 * Resources to review:
  * PowerPC:
  	- http://www.altdevblogaday.com/2011/07/25/debugging-techniques-for-optimized-ppc-builds/
@@ -25,6 +27,10 @@ Top priority:
 	 - http://msdn.microsoft.com/en-us/library/7kcdt6fy.aspx
 	 - http://www.ray.masmcode.com/fpu.html
  
+* Add a mention of "Configuration Properties" -> "C/C++" -> "Code Generation" -> "Enable Enhanced Instruction Set" to the list of
+configuration properties that have an impact on generated assembly code and thus on debugging. Use the "FPU" project as an example
+for SSE/x87 instructions.
+* Add a mention of the "32-bits floating point" and "64-bits floating point" formats in the memory window.
 * Add a section in the presentation to talk about finding our way on the stack in debug mode, and then how to apply this knowledge to guess compiler's optimizations. 
 * Disable /RTCs and /GS to make generated assembly code easier to read and illustrate in disassembly what it does. Mention this somewhere in the presentation. Mention /GS too.
 * Improve "FindThis" project so that it really makes sense to have to find the "this" pointer.

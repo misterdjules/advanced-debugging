@@ -2,7 +2,7 @@
 
 ## What is advanced debugging?
 
-Visual C++ 2013 is a great IDE for C++ programmers. The integration of its debugger into the whole user experience is remarkable. Most of the time, debugging feels natural and very productive. However, only a fraction of the tools are visible on the surface. There's a lot more useful tools available that are either hidden or not documented. For instance, did you know that you can ask the debugger to break anytime a given variable is written to by the program, allowing you to precisely find the cause of a memory overwrite without having to step through your code for hours? For this reason, most programmers only scratch the surface of what's possible when debugging native programs using Visual C++.
+Visual C++ 2013 is a great IDE for C++ programmers. The integration of its debugger into the whole user experience is remarkable. Most of the time, debugging feels natural and very productive. However, only a fraction of the tools are visible on the surface. There's a lot more useful tools available that are either hidden or not documented. For this reason, most programmers only scratch the surface of what's possible when debugging native programs using Visual C++. For instance, did you know that you can ask the debugger to break anytime a given variable is written to by the program, allowing you to precisely find the cause of a memory overwrite without having to step through your code for hours?
 
 Moreoever, Visual C++'s debugger can sometimes appear like a black box where magic happens. How does the debugger knows the value of variables when debugging, and why is it not able to inspect these values when debugging optimized builds? How does the debugger find the value of the `this` pointer when debugging C++ method calls? Why this value isn't available when debugging optimized builds? All these unanswered questions result in a lot of false beliefs, like the fact that optimized builds (or "Release" builds) cannot be debugged.
 
@@ -17,9 +17,17 @@ Advanced debugging will add lots of practical tools to your debugging belt. Thes
 It will also make you so much more comfortable with Visual C++'s debugger that no debugging endeavor will seem impossible or scary.
 If debugging a crash from an optimized build sounds like a receipe for a bad day, this book will make it much more aproachable.
 
-Your understanding of lower level mechanisms like how programms written in C++ actually work will improve significantly. As a consequence, you will become a better programmer, even when not using C++.
+Your understanding of lower level mechanisms, like how programms written in C and C++ actually work under the hood, will improve significantly. For instance, you will learn how function and methods calls can work reliably accross DLLs without the need for recompilation. As a consequence, you will become a better programmer, even when not using C++.
 
-Finally, mastering advanced debugging will help you never say "I don't know what happened" anymore.
+Finally and most importantly, mastering advanced debugging will help you never say "I don't know what happened" when encountering a crash or a bug anymore.
+
+## Who is this book for?
+
+Programmers using Visual C++ to build native application will benefit the most from this book. The first part of the book is architecture agnostic, but the second part on disassembly debugging focuses on the x86 and x64 architectures. Programmers who target other architectures such as PowerPC, for instance video game programmers working on the XBox 360 and Playstation 3 game consoles, will however be able to reuse most of the content. For video game programmers, note that the latest generation of gaming consoles from SONY and Microsoft are based on the x64 architecture, which this book covers comprehensively.
+
+C and C++ programmers not using Visual studio will be able to reuse the second part of the book on disassembly debugging and reverse engineering with their favorite programming environment.
+
+Advanced debugging can benefit any programmer, even if they're not using C or C++ as their main programming language. Most concepts presented in this book apply to any programming environment. 
 
 ## Prerequisites
 
@@ -45,9 +53,14 @@ In order to stay focused on taking your debugging skills to the next level, only
 
 The content is split into two big parts: advanced debugging tools and debugging optimized builds using disassembly. These two parts can be read in any order, although the tools presented in the first part are very useful when studying part two.
 
-Part one is a tour of hidden or undocumented features of Visual C++ 2013's integrated debugger. Almost all debugging tools have advanced uses that can significantly improve your productivity when debugging code. You will learn about hidden tools for the watch window and breakpoints. "Edit and continue", a tool that allows you to change code when debugging programs will be presented. The debugger API will help you programmaticaly trigger some of the debugger's behavior.
+The first part will guide you to setup the debugger correctly so that you can:
+* do live debugging session of unoptimized and optimized builds.
+* do post-mortem debugging using crash dumps produced by unoptimized and optimized builds.
+This is a pre-requisite for being able to use Visual C++'s debugging tools at their full potential. It is recommended not to skip this section.
 
-Part 2 starts with an overview of assembly languages concepts in the fourth chapter. This overview will teach you anything you need to know to be able to debug programs using the "Disassembly" tools available in Visual C++'s debugger. The next chapter will cover the inner workings of the debugger, which will help you understand the impact of the debugger on your program. It will also clear up some confusing information that can show up when using disassembly debugging. Finally, the last chapter will present concrete techniques to debug common issues that arise when debugging optimized builds, like finding function parameters on the stack, looking up the "this" pointer for C++ methods and local variables.
+Part two is a tour of hidden or undocumented features of Visual C++ 2013's integrated debugger. Almost all debugging tools have advanced uses that can significantly improve your productivity when debugging code. You will learn about hidden tools for the watch window and breakpoints. "Edit and continue", a tool that allows you to change code when debugging programs will be presented. The debugger API will help you programmaticaly trigger some of the debugger's behavior.
+
+The third and last part starts with an overview of assembly languages concepts in the fourth chapter. This overview will teach you anything you need to know to be able to debug programs using the "Disassembly" tools available in Visual C++'s debugger. The next chapter will cover the inner workings of the debugger, which will help you understand the impact of the debugger on your program. It will also clear up some confusing information that can show up when using disassembly debugging. Finally, the last chapter will present concrete techniques to debug common issues that arise when debugging optimized builds, like finding function parameters on the stack, looking up the "this" pointer for C++ methods and local variables.
 
 An effort has been made to make this book as concise and focused as possible. As a consequence, a lot of information that is related to the matter covered in these pages but not essential has to be found elsewhere. For this reason, a curated bibliography with descriptions can be found at the end of this book.
 

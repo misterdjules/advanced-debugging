@@ -1,0 +1,1023 @@
+# Breakpoints
+
+Breakpoints are one of the most important tools when debugging a program. They
+allow programmers to pause at any desired point in their execution flow, and
+investigate their state at that time. Without breakpoints, programmers would
+need to log information to some output device to understand how a program
+behaves.
+
+While relying on debug output logs to investigate an issue can be fine in some
+situations, it is often inadequate. Large programs can take a very long time
+to build and link. Using only debug output logs to debug programs requires
+them to be built and linked every time a programmer wants to change the debug
+output, making the process slow and frustrating. Moreover, writing debug
+output code can change the debuggee's behavior such that bugs appear or
+disappear.
+
+Although it is very likely that you're already familiar with basic
+breakpoints, this chapter starts by a very quick review of how to use them,
+just to make sure that everyone is on the same page.
+
+Next, their implementation is explained and illustrated in details. This will
+bring your debugging knowledge and experience to a level where breakpoints are
+no longer this magical thing that works for mysterious reasons. Your program's
+behavior when running within the debugger will be easier to understand. What
+are the threads running when my program hits a breakpoint? Why are my local
+variables initialized to 0xCC when running the "Debug" build? At the end,
+you'll be able to answer these questions and many others.
+
+Then, the focus will be on introducing two types of breakpoints that most
+people don't know about: conditional and data breakpoints. We'll show when
+they're most useful and how to use them. Conditional breakpoints are
+implemented on top of basic breakpoints, but data breakpoints work quite
+differently. Their implementation will also be explained in details. We'll
+present their differences and show you how to combine these two types of
+breakpoints to get even more powerful tools.
+
+At the end of this chapter, not only will you have gained a new set of tools
+to boost your productivity and your efficiency when debugging programs, you
+will also know how they work at a very low level. This combination will bring
+your understanding of one of the most fundamental debugging tool to a new
+level.
+
+## Basic breakpoints
+
+Basic breakpoints are also called _location_ breakpoints because they are
+triggered whenever the next instruction pointer reaches their location.
+
+In order to set a location breakpoint with Visual C++ 2013, load the [sample
+solution](http://bit.ly/1jOmGN9) and set the project named _Sandbox_ as the
+startup project.
+
+![Setting up Breakpoints as the startup project](images/set-breakpoints-as-startup-project.jpg)
+
+Then, unfold the content of the _Sandbox_ project and double-click on the
+_main.cpp_ source file. It should open _main.cpp_'s source code into the text
+editor.
+
+![Opening up Sandbox' main.cpp source file in the source code editor](images/open-main-cpp-in-breakpoints-project.jpg)
+
+Now, add a breakpoint on the first line of code in the _main_ function by
+right-clicking on it and then clicking on _Breakpoint_ -> _Insert Breakpoint_.
+You can also do it by positionning your cursor on the line and pressing F9:
+
+![Adding a new breakpoint](images/add-breakpoint-in-breakpoints-project.jpg)
+
+Finally, build and run the program by pressing F5: the program should start
+and pause when hitting the breakpoint that was just added:
+
+![The newly added breakpoint is hit](images/breakpoint-hit-in-breakpoints-project.jpg)
+
+As expected, the location breakpoint is triggered when the next instruction
+pointer, represented by the little yellow arrow at the left of the source code
+text, is at the same location. When the breakpoint is hit, the whole program
+is paused. At that point, only the debugger can continue its execution from
+where it paused. During a debugging session, the user is responsible for
+deciding when it's time for the debugger to unpause the debuggee by pressing
+F5 or clicking on the _Continue_ toolbar button.
+
+Before examining more advanced breakpoints that will allow you to overcome
+some of the limitations of basic breakpoints, the next section will explain in
+details how location breakpoints are implemented.
+
+## How location breakpoints work {#how-location-breakpoints-work}
+
+Location breakpoints are implemented with the _INT 3_ instruction, also called
+the breakpoint exception interruption. When the debuggee executes this
+instruction, the Windows operating calls a specific system handler that:
+
+1. Saves the state of the debuggee and pauses it.
+2. Notifies the debugger process that its debuggee triggered a breakpoint by raising a breakpoint exception.
+
+If there's no debugger watching the debuggee's process, and if the debuggee
+doesn't handle the breakpoint exception, it will abort its execution.
+
+Programmers can use the breakpoint exception interruption directly in their
+code to add breakpoints programmatically. To try it for yourself, open the
+_Breakpoints_ project and set it as the startup project. Then, open up the
+_main.cpp_ file in the text editor. Make sure that no location breakpoint is
+set (no red disks are visible on the left side of the source code in the code
+editor), and start debugging the program by pressing F5.
+
+Although no breakpoint has been set in Visual C++'s IDE, the debugger will
+break on the call to _\_\_debugbreak_.
+
+![The debugger breaks on the _\_\_debugbreak_ instruction although no breakpoint has been set.](images/hardcoded-breakpoint-triggered.png)
+
+Now, toggle the disassembly window by pressing F8. The yellow arrow points to
+the code generated by the compilation of _\_\_debugbreak_, an _INT 3_ instruction:
+
+![_\_\debugbreak_ has been compiled to an _INT 3_ instruction.](images/hardcoded-breakpoint-disassembly.png)
+
+[There are several ways to set breakpoints programmatically](#setting-breakpoints-programmatically).
+It can sometimes be the right tool for the job.However, having to change the source code of the
+program to debug every time a new breakpoint is needed is counter productive, as it requires the
+debugging session to be restarted from scratch[^unless- edit-and-continue].
+
+[^unless-edit-and-continue]: The "Edit & Continue" feature can be used to avoid restarting
+the debugging session, but it's not always an option. For instance, it doesn't
+work for optimized builds.
+
+Luckily, there's another, more efficient way for a debugger to implement
+location breakpoints. When the debugger launches the program to debug, it is
+granted permissions to write to the memory area where the debuggee's code is
+located. Then, it can change the executable code so that the debuggee executes
+_INT 3_ instructions at locations where the user set breakpoints.
+
+It is actually possible to do this manually with the debugger. With the same
+_Breakpoints_ project opened and set as a startup project, set a breakpoint on
+the first line of code in the _main_ function:
+
+![Setting a breakpoint on _main_'s first line of code.](images/breakpoint-at-main-first-instruction-in-breakpoints-project.png)
+
+Start debugging by pressing F5, the breakpoint will be hit. Show the
+disassembly window by pressing Alt + 8. Toggle the memory window by pressing
+ALt + 6 and copy the address of the instruction after the next instruction in
+the assembly window to the address bar in the memory window:
+
+![Examining the debuggee's executable code in the memory window.](images/breakpoint-assembly-and-memory-windows.png)
+
+If instructions' addresses or code bytes do not show in the disassembly
+window, make sure that the "Show Code Bytes" and "Show Address" options are
+checked when right clicking in it.
+
+We're going to do what the debugger does when setting a location breakpoint:
+change the first byte of an instruction to be _0xCC_, the hexadicemal
+representation of _INT 3_'s opcode. We'll change the first byte of the
+instruction after the instruction pointed to by the yellow arrow, so that we
+can actually verify that our change triggers a breakpoint.
+
+Click in the memory window on the first top left byte, a grey cursor should
+appear. Press the 'C' key twice on your keyboard to write INT 3's opcode into
+the memory. Visual C++'s disassembly window should have updated to reflect
+your change:
+
+![The disassembly and memory window after patching the code to add an INT 3 instruction.](images/breakpoint-assembly-and-memory-windows-after-patching-int3.png)
+
+Now press F5, your newly added breakpoint should trigger:
+
+![](images/patched-in-breakpoint-triggered.png)
+
+Congratulations, you just patched some executable code live and added a
+breakpoint manually!
+
+The _INT 3_ instruction has actually been designed to be inserted by debuggers
+into executable code. Its binary transcription is only one byte long, and can
+thus be used to replace any other instruction, without corrupting the rest of
+the code, like overwriting their operand or subsequent instructions.
+
+But wait, why don't we see _INT 3_ instructions in the disassembly window when
+we set a location breakpoint in the source code?
+
+### Checking that Visual C++'s debugger actually uses INT 3 instructions to implement location breakpoints
+
+Let's use the same _Breakpoints_ project that we used previously to verify
+that software breakpoints are used by the debugger to implement location
+breakpoints. Open the project in Visual C++ and set a breakpoint where _foo_
+is assigned the value 0, at the beginning of the _main_ function:
+
+![Setting a location breakpoint where _foo_ is assigned the value 0.](images/add-location-breakpoint-foo-assign.png)
+
+Compile the project and start the debugger by pressing F5. The breakpoint
+should be triggered.
+
+![The location breakpoint is triggered.](images/location-breakpoint-foo-assign-hit.png)
+
+Now, open up the disassembly window by pressing Alt + 8 to check that the
+debugger actually patched the executable code where we set the location
+breakpoint. Make sure that the "Show Code Bytes" and "Show Address" options
+are checked when right clicking in the disassembly window.
+
+![Make sure that addresses and code bytes are displayed in the disassembly window.](images/disassembly-right-click.png)
+
+Surprisingly, the disassembly window doesn't show an _INT 3_ instruction, but
+a _MOV_ instruction, which implements the assignation of the value 0 to the
+_foo_ variable:
+
+![The disassembly window doesn't show any INT 3 instruction where the location breakpoint was set.](images/location-breakpoint-disassembly.png)
+
+Would Visual C++'s debugger hide information? Let's verify this with the
+_Memory_ window. Click on _DEBUG_ -> _Windows_ -> _Memory_ -> _Memory 1_ or
+press Alt + 6. Copy the address where the location breakpoint is set and paste
+it in the memory window's input field.
+
+![Examining a location breakpoint's code with the memory window.](images/examine-location-breakpoint-code-in-memory-window.png)
+
+At the top left corner of the memory window, the first byte stored at the
+location breakpoint's adress is shown: _C7_. However, _C7_ is the hexadecimal
+representation for a _MOV_ instruction's opcode, not an _INT 3_ instruction
+which opcode is represented by _CC_ in hexadecimal notation.
+
+Are we missing something or is Visual C++'s debugger lying to us again?
+Let's find out by writing a simple program. This program takes a memory
+address as input, reads one byte at this address and output its value. If a
+location breakpoint is set at the address given as input, it should output the
+value corresponding to _INT 3_'s opcode, _CC_.
+
+Open up the _MemReader_ project and set it as your startup project. Open its
+_main.cpp_ file in the text editor before the _while (true)_ loop:
+
+![Setting a location breakpoint in the _MemReader_ project.](images/set-location-breakpoint-memreader-project.png)
+
+Start debugging by pressing F5 and wait for the breakpoint to be hit. Bring up
+the disassembly window by pressing Alt + 8 and copy the address where the
+location breakpoint is set somewhere (for instance, in a notepad window).
+Continue the execution by pressing F5 again, a prompt asking you to enter an
+address should appear:
+
+![_MemReader_ prompts for the memory address where the location breakpoint was set.](images/memreader-prompt.png)
+
+Type in the address you copied previously and make sure it is prefixed wiht
+_0x_, indicating that it's using an hexadecimal representation. Press enter,
+the following message should appear:
+
+Data at address 0xf7a899: 0xcc
+Data at address 0xf7a899 IS a breakpoint opcode!
+
+At last, we found the _INT 3_ instruction's binary code where a location
+breakpoint has been set. In order to double check that _MemReader_ is not also
+lying to us, let's first disable the location breakpoint. Display the
+_Breakpoints_ window by pressing Alt + F9 and uncheck the checkbox on the line
+representing the location breakpoint. The disk filled with red should become
+an empty red circle.
+
+![Disabling the location breakpoint.](images/disable-location-breakpoint-memreader.png)
+
+Now, enter the same address as before at _MemReader_'s prompt, then press
+enter. The following message should be written:
+
+Data at address 0xf7a899: 0xf7a8990x68
+Data at address 0xf7a899 is NOT a breakpoint opcode!
+
+Excellent, we just proved that Visual C++'s debugger was hiding how the
+debugger patches the debuggee's executable code with _INT 3_ instructions.
+
+The _INT 3_ instruction is called a _software breakpoint_ because it doesn't
+rely on specific hardware. Programmers or debuggers just need to insert this
+instruction into the debuggee's executable code where they want it to break.
+There's no limit to the number of software breakpoints that can be set. This
+is especially handy for location breakpoints because it is often necessary to
+break at many different key places in the code to investigate issues. If there
+was a limitation on the number of location breakpoints that could be set, it
+would make debugging much more tedious.
+
+On x86 and x86-64 architectures, there is another way to implement
+breakpoints: _hardware breakpoints_. They are fundamentally different than
+software breakpoints and have different use cases. Their usage and
+implementation details are covered in [a later section of this chapter
+entitled _Data breakpoints_ ](#data-breakpoints).
+
+## Why more advanced breakpoints are needed
+
+Location breakpoints are very useful to solve basic debugging challenges.
+They can be added anywhere in the program's source code, and can
+be removed, disabled or re-enabled at will. They are a very flexible way to
+control the debuggee's execution flow.
+
+However, more difficult debugging endeavors can be almost impossible to
+overcome by using this simple tool. For instance, they _always_ break. While
+this is desirable most of the time, what if there's a bug in a loop that
+happens only after one million iterations? Pausing the debuggee one million
+times and clicking on "Continue" as many times will get old soon.
+
+Let's consider for instance the following code:
+
+{title="Even simple code can be tedious to debug using location breakpoints",lang=c++}
+~~~ 
+int total = 0;
+for (unsigned int i = 0; i < 1000; ++i)
+{
+  total += i;
+}
+~~~
+
+When debugging this loop, you may want to examine what happens when _i_ has
+the value _891_. With basic breakpoints, you will set a breakpoint on a source
+code line within the loop. Then, because the debugger stops anytime the next
+instruction pointer matches the location breakpoint, you will need to unpause
+the debuggee _890_ times before you reach the state you want to investigate.
+This would be very time consuming.
+
+This is the kind of debugging problems that advanced breakpoints solve.
+Advanced breakpoints build on basic breakpoints: they allow programmers to
+pause the debuggee's execution and take their time to investigate the
+debuggee's status. However, they provide additional features that make them
+more powerful.
+ 
+The next sections presents four different types of advanced breakpoints in the following order:
+
+* Conditional breakpoints triggered when a condition specified by the user is satisfied.
+* Trace breakpoints that log some debug output when they are hit.
+* Data breakpoints, sometimes called memory breakpoints, triggered when a specific area of the system's memory is used.
+* Inline breakpoints which are set by writing code using the debugger's API that pauses the program and gives control back to the debugger.
+
+We'll also show how to combine several different advanced breakpoints types to
+obtain even more powerful tools.
+
+## Conditional breakpoints
+
+Conditional breakpoints are, as their name suggests, breakpoints that trigger
+when the next instruction pointer matches the location of the breakpoint _and_
+a user-specified condition is met. Thus, to setup a conditional breakpoint, it
+is necessary to create a location breakpoint beforehand. Actually, conditional
+and trace breakpoints are basic breakpoints' modifiers, so you will need to
+setup a basic breakpoint first each time you want to use them.
+
+In the [sample solution](http://bit.ly/1jOmGN9), open the project named
+_Breakpoints_. Set is as a startup project by right-clicking on the project's
+name and then on _Set as Startup Project_. Double click on the _main.cpp_
+source file to open it up in the text editor. Set a location breakpoint in the
+only statement within the _for_ loop located at the top of the _main_
+function:
+
+![Adding a new basic breakpoint before setting breakpoints conditions](images/set-basic-breakpoint-in-breakpoints-project.png)
+
+When your basic breakpoint is set at the location where you want it to
+trigger, you can setup conditions by right clicking on the red disk that
+represents the breakpoint on the left of the text editor:
+
+![Conditions can be set on basic breakpoints by right-clicking on it](images/right-click-on-basic-breakpoint.png)
+
+You can also display the list of breakpoints in the breakpoints window
+available through the _DEBUG_ -> _Windows_ -> _Breapoints_ menu, and then
+right click on the corresponding breakpoint. However, I recommend using the
+former method, since it's easier to see the breakpoints in the source code's
+context.
+
+In the previous screenshot, three of the contextual menu entries touch on
+conditional breakpoints. These are _Condition_, _Hit Count_ and _Filter_. They
+all allow programmers to specify conditions that have to be fullfilled to hit
+the breakpoint.
+
+![Conditions can be set on basic breakpoints by right-clicking on it](images/conditional-contextual-menu-entries-on-basic-breakpoint.png)
+
+Let's start with the _Condition_ contextual menu entry.
+
+### The condition modifier
+
+Click on the _Condition_ menu entry. You will be presented with the following
+dialog box:
+
+![A dialog box to set breakpoint conditions](images/breakpoint-condition-dialog-box.png)
+
+As you can see from the previous screenshot, this dialog box contains one text
+field where you can enter an expression that will be evaluated by the debugger
+each time the next instruction pointer reaches the breakpoint. If the "Is
+true" option is checked, the condition will need to evaluate to _true_ for the
+breakpoint to match the condition. If the "Has changed" option is checked, the
+expression will need to have changed from the previous breakpoint hit to match
+the condition.
+
+The format of the expression is limited, but still offers a lot of options.
+Here are the rules you need to follow when writing the condition expression:
+
+* Only C-style comparison operators are supported. These are _==_, _!=_, _<_, etc. Any comparison operator that can be used in your C/C++ code is supported.
+* Methods or function calls are not supported. [Debugger intrinsics](#debugger-intrinsics) can help you mitigate this limitation. 
+* Macros are not expanded, which means that you can't write _MY_MACRO_ within this text field and expect the evaluator to expand it. Instead, you'll need to use the actual value.
+
+Besides these limitations, Visual Studio provides you with some useful tools:
+
+* A complete set of debugger intrinsics functions, including a comprehensive list of string comparison functions, are available to use in the condition expression. To see the full list, head over to the [debugger intrinsics cheat sheet](#debugger-intrinsics).
+* Specific debugger expressions starting with "$" or "@" named _pseudo registers_ that give you access to interesting values when debugging. For the full list of pseudo registers, please refer to the [pseudo registers cheat sheet](#pseudo-registers).
+
+Let's try to use a simple conditional breakpoint. Enter the expression
+_loopFoo % 2 == 0_ in the condition text field:
+
+![Using simple comparison operators in breakpoints conditions](images/breakpoint-condition-modulo.png)
+
+Notice how the breakpoint's icon's appearance changes. A white cross is now
+visible in the middle of the red circle:
+
+![A white cross appears in the middle of a breakpoint's icon if a condition is set](images/conditional-breakpoint-icon-with-cross.png)
+
+Since conditional and trace breakpoints are basic breakpoints with a set of
+modifiers, they are represented as a basic breakpoint (a red circle) with an
+icon representing which modifier applies.
+
+Start debugging the program by pressing _F5_. The conditional breakpoint you
+just set should hit five times, each time the variable _loopFoo_ is even.
+Congratulations, you've just used your first advanced breakpoint!
+
+Conditional breakpoints can be used anywhere, not just within loops. In the
+same _Breakpoints_ project, add a breakpoint in _SomeClass_'s method named
+_increaseSomeValue_:
+
+![Setting a breakpoint in _SomeClass_' _increaseSomeValue_ method](images/breakpoint-someclass-increase-some-value.png)
+
+Then, bring up the breakpoint modifiers contextual menu by right-clicking on
+the newly added breakpoint and click on "Condition...". Then, within the
+condition dialog's text input field, write the condition _m\_someValue == 1_:
+
+![Conditional breakpoints can be set anywhere, not just within loops](images/breakpoint-someclass-increase-some-value-condition.png)
+
+Finally, hit _F5_ to start debugging the program. The breakpoint you just set
+should be hit. Hover with your mouse pointer on _m_someValue_'s declaration:
+its value is 1, which corresponds to the breakpoint condition modifier we just
+set. There's no limit to where you can use breakpoints modifiers, including
+condition modifiers.
+
+#### Exercice
+
+In the _Breakpoints_ project, set a conditional breakpoint that breaks
+everytime the _currentString_ variable holds the string _"foo"_.
+
+### The hit count modifier
+
+Another way to implement a conditional breakpoint is to use the _Hit Count_
+contextual menu entry of advanced breakpoints:
+
+![Setting a hit count to create a conditional breakpoint](images/breakpoint-hit-count.png)
+
+Delete the conditional breakpoint you created previously, an recreate another
+breakpoint at the same location, in the for loop.Then click on the _Hit Count_
+contextual menu entry. You will be presented with the following dialog:
+
+![Hit count breakpoint dialog](images/breakpoint-hit-count-dialog.png)
+
+By default, this dialog is set to "Break always", which makes the breakpoint
+act as a basic, location breakpoint. This setting is nonetheless already very
+helpful, since the "Current hit count" label displays the number of times that
+the breakpoint has been hit.
+
+Click on the list box, and you'll see three different hit count options:
+
+![Different settings for hit count breakpoints](images/breakpoint-hit-count-dialog-expanded.png)
+
+As you can see from this screenshot, a hit count breakpoint breaks the
+debuggee when the next instruction pointer matches the breakpoint location,
+and it has been hit the number of times specified in dialog box. A hit count
+breakpoint is equivalent to a breakpoint with a condition modifier where the
+condition would be true depending on the number of times the breakpoint has
+been hit.
+
+Here's a table that gives the condition expression that is equivalent each hit
+count setting:
+
+|Hit count setting     | Condition expression              |
+|----------------------|-----------------------------------|
+|break when the hit    | someVariable == desiredHitCount   |
+|count is equal to     |                                   | 
+|----------------------|-----------------------------------|
+|break when the hit    |  someVariable % someMultiple == 0 |
+|count is a multiple   |                                   |
+|of                    |                                   |
+|----------------------|-----------------------------------|
+|break when the hit    | someVariable >= someHitCount      |
+|count is greater than |                                   |
+|or equal to           |                                   |
+
+One might wonder why use the hit count modifier if the condition modifier can
+achieve exactly the same thing, while allowing more flexibility. The reason
+for using the hit count modifier over the condition modifier is there's no
+need for a variable in your source code to hold the current hit count. This is
+very handy when, for instance, during a debugging session, you want to break
+depending on the hit count, but you can't change the source code without
+stopping the program.[^edit-and-continue]
+
+[^edit-and-continue]: It is sometimes possible to change your code during a debugging session without stopping the program by using the Edit & Continue feature. However, Edit & Continue has some serious limitations, and won't work in all cases.
+
+#### The filter modifier
+
+The filter modifier is the latest modifier that helps to create conditional
+breakpoints. It allows programmers to trigger a breakpoint depending on the
+following conditions:
+
+* The current Windows machine name. 
+* The current process id. Note that this is the debuggee process id, not the debugger process id. 
+* The current thread id. As for the current process id, this is the debuggee's thread id, not the debugger thread id.
+* The current thread name. As for the current thread id, this is the debuggee's thread name, not the debugger thread name. The thread name can be set programmatically. For more information about other advanced debugging tools when debugging multi-threaded programs, see the [Multi-threading advanced debug tools section](#multi-threading-advanced-debug-tools).
+
+Individual conditions can be combined using logical operators _&_ (logical
+and), _||_ (logical or) and _!_ (logical not).
+
+### Combining modifiers
+
+While individual modifiers are very helpful on their own, Visual C++'s
+debugger allows you to mix and match them for greater flexibility. For
+instance, you can set a condition, hit count and filter modifier at the same
+time on any breakpoint. The modifiers will be combined using a logical _and_
+operator, meaning that all modifiers will need to be satisfied in order for
+the breakpoint to be triggered.
+
+## Trace breakpoints
+
+By definition, breakpoints pause the the debuggee's execution and allow you to
+examine its current state. Programers can take all the time they need to to
+inspect current variables's value, walk the callstack and browser the
+debugee's memory. This is very powerful and, most of the time, it's sufficient
+to find the solution to even complex bugs. However, once the debugee's
+execution continues, all this information is lost. Without a way to keep a log
+of the debuggee's state, some bugs can be very difficult to investigate.
+
+This is where trace breakpoints can help. They allow you to output some debug
+logs in the output window whenever a breakpoint is hit. Let's use our
+_Breakpoints_ project to add a trace breakpoint that will output some
+information when we call _SomeClass::increaseSomeValue_. As for all breakpoint
+modifiers, you'll first need to create a "normal" or "location" breakpoint in
+order to add a trace breakpoint. Then right-click the newly created breakpoint
+and click on "When Hit...":
+
+![Creating a trace breakpoint](images/trace-breakpoint-creation.png)
+
+At that point, the following dialog will show:
+
+![Trace breakpoint creation dialog](images/trace-breakpoint-creation-dialog.png)
+
+In this dialog, you will need to check the _Print a message_ checkbox in order
+to be able to specify what output log message to print when the breakpoint is
+hit. When doing so, the online help will show you what the syntax you can use
+to display dynamic values, such as variables' values, the current callstack,
+the caller, etc. Note that you can use [pseudo-registers](#pseudo-registers)
+by writing them between curly braces. For instance, if you want to print the
+latest error code set with _SetLastError_, simply enter _Latest error:
+{$err,hr}_ in the text field. Note that [format specifiers](#format-
+specifiers) are also handled properly using this syntax.
+
+![Logging the latest error set by SetLastError using a trace point](images/trace-breakpoint-creation-dialog-output-message.png)
+
+When a trace breakpoint is hit, its output is sent to the _Output_ window. The
+output window can be displayed by clicking on the _DEBUG_ -> _Windows_ ->
+_Output_ menu entry. Start debugging the project, and you should see the
+following messages in the output window:
+
+![Output messages logged using trace breakpoints are visible in the output window](images/trace-breakpoint-output-messages.png)
+
+Note that it is possible to programmatically log messages in the output
+window, without using trace breakpoints. In order to do this, you will need to
+use the _OutputDebugString_ function covered in the [section about the
+debugger's API](#debugger-api).
+
+By default, trace breakpoints do not pause the debuggee's execution when hit.
+In this case, they appear as a red diamond instead of a red circle. You can
+make them pause the debuggee's by unchecking the "Continue execution"
+checkbox:
+
+![Setting a trace breakpoint to pause debuggee's execution](images/trace-breakpoint-creation-dialog-pause-execution.png)
+
+When trace breakpoints pause the debuggee's execution, their appearance change
+for a red circle, like for normal location breakpoints.
+
+### A word about trace breakpoints' performance
+
+Trace breakpoints are very usefull, and it can be tempting to use them instead
+of writing extra logging code that has to be conditionnally deactivated for
+release builds. However, trace breakpoints have a very significant impact on
+performance. If they're hit very frequently (several times per second), they
+will dramatically slow down your process, to the point where the debuggee's
+becomes barely usable.
+
+Even worse, the debugger and the whole system will take a big performance hit.
+Why is that? Each time a normal breakpoint is hit, an exception is raised by
+the debuggee. This exception is caught by the debugger, which patches the
+debuggee's executable code[^debuggee-code-patching]. When the user signals to
+the debugger that the debuggee should continue its execution, the debugger
+performs a system call that continues the debuggee's execution. This adds a
+lot of overhead to the normal debuggee's process execution.
+
+You might wonder why a trace point that doesn't pause the debuggee's execution
+would be affected by these performance issues. The reason is simple: although
+trace breakpoints that don't pause the debuggee's execution seem to never
+transfer execution from the debuggee to the debugger, and vice-versa, they
+actually do. Trace breakpoints are implemented the same way as any other
+"blocking" breakpoint, except they don't wait for a user interaction to
+continue the debuggee's execution.
+
+[^debuggee-code-patching]: If you'd like to know more about why the debugger needs to patch the debuggee's executable code when a breakpoint is hit, go to the section entitled [How debuggers work](#how-debuggers-work).
+
+### Combining trace breakpoints with conditional breakpoints
+
+In the same way you can combine other modifiers, you can combine the _When
+Hit_ modifier with all other modifiers to output some debug trace when your
+conditional breakpoints are hit.
+
+However, there's one drawback to this flexibility: setting many modifiers on a
+breakpoint that is triggered very frequently (every second or more) can have a
+big hit on the debuggee's performance. Using the minimum amount of modifiers
+to solve your debugging challenges is a best practice that will help you keep
+your debuggee's performance at a reasonnable level. It will make the debugging
+experience all the more enjoyable.
+
+## Data breakpoints {#data-breakpoints}
+
+Data breakpoints, sometimes named memory breakpoints, are used to pause the
+debuggee when a memory I/O operation is performed on a given range of its
+address space. For instance, a data breakpoint can be set to pause the program
+if foud bytes of memory starting at address 0x07032345[^32-bits-address] are
+written.
+
+[^32-bits-address]: We're using a 32 bits address for convenience here, the address size depends on your target platform.
+
+Data breakpoints are fundamentally different than traditional location
+breakpoints. Instead of being hit when the next instruction to be executed
+matches a given address, they can be triggered by any instruction of the
+debuggee's code[^how-debuggers-work].
+
+[^how-debuggers-work]: If you're interested to know more about how location and data breakpoints are implemented, there's a lot of detailed information in the chapter entitled [How debuggers work](#how-debuggers-work).
+
+Usage of data breakpoints is appropriate when it's easier to reason about the
+erroneous data rather than the code that causes it. Sometimes, the execution
+paths that the code can take are well-known to us and identified, but its
+output is wrong. In these cases, normal location breakpoints are handy because
+they allow us to set check points at known code locations where we can check
+inputs and outputs to finally pinpoint the source of the bug.
+
+In other situations, code can take many different execution paths that are
+still unknown to us, either because the code is very complex, or because  it's
+not familiar to us. However, the erroneous data can be located  very easily in
+memory. Data breakpoints allow programmers to indicate the erroneous data's
+address and find out which code path generates it.
+
+Data breakpoints are not attached to code, and thus are not created in the
+code editor. Moreover, since they operate on the debuggee's data, 
+the program to debug has to be started and its data loaded before they can
+be created.
+
+To illustrate this, stop any ongoing debugging session in Visual C++. Make
+sure the _Breakpoints_ project is loaded and hover on the _DEBUG_ -> _New
+Breakpoint_ menu entry. The _New Data Breakpoint_ menu entry is disabled.
+
+![The program to debug needs to be started before data breakpoints can be set](images/data-breakpoint-disabled-when-program-not-started.png)
+
+Now, add a location breakpoint on the first line of the _main_'s function
+implementation.
+
+![Adding a breakpoint at the start of _main_'s function will allow us to set a
+data breakpoint when the debuggee's data is loaded into its address
+space](images/set-location-breakpoint-at-top-of-main.png)
+
+Start debugging the program: the breakpoint you just set will
+be hit. At that point, creating a data breakpoint is possible because the
+debuggee's data is loaded in its address space.
+
+![Creating a data breakpoint now that the debuggee's data is loaded](images/data-breakpoint-creation.png)
+
+Another way to create a data breakpoint is to use the Breakpoints window
+available via the _DEBUG_ -> _Windows_ -> _Breakpoints_ menu entry. Click on
+the _New_ toolbar button and then on _New Data Breakpoint..._.
+
+![Creating a data breakpoint from within the Breakpoints window](images/data-breakpoint-creation-alternate.png)
+
+When creating a new data breakpoint, the following dialog appears:
+
+![Data breakpoint creation dialog](images/data-breakpoint-creation-dialog.png)
+
+This dialog contains two input text fields:
+
+* The address of the first byte of data that will trigger the data breakpoint if a memory write operation is made. 
+* The size in bytes of the memory area for which the data breakpoint will be valid.
+
+By default, the size is set to four bytes. It is well suited for data types
+that span four bytes, but you should change it if the data you're monitoring
+has a different size. For instance, to trigger a breakpoint anytime an ASCII
+character is changed, the data should be set to one byte. If you set it to
+four bytes, it will trigger for characters that are adjacent in memory.
+
+Let's set our new data breakpoint to trigger when the data represented by the
+variable named _foo_ changes. To do that, enter the expression _&foo_ in the
+_Address:_ input text field of the data breakpoint creation dialog. Since
+_foo_ is of type _int_ and _sizeof(int)_ is four bytes on x86, the default
+size of four bytes is fine.
+
+![Setting the address for a new data breakpoint](images/data-breakpoint-creation-dialog-set-address.png)
+
+The language input field is used as a label to later retrieve and sort your
+breakpoints by programming language name. It doesn't have any impact on how
+your data breakpoint behaves.
+
+Click OK, and the _Breakpoints_ window should now list your new data breakpoint.
+
+![The newly created data breakpoint has been added to the list of breakpoints
+in the _Breakpoints_ window](images/data-breakpoint-added.png)
+
+Note how its name differ from the location breakpoint we set earlier. The
+location breakpoint's name mentions a line number, whereas the data breakpoint
+mentions a memory address, and a data size. Now that the data breakpoint has
+been set, continue the debuggee's execution by pressing _F5_.
+
+Because the first instruction of the _main_ function initializes the variable
+_foo_ with the value _0_, the data breakpoint triggers. Visual C++'s debugger
+displays a modal dialog and the next instruction pointer points towards the
+next instruction to be executed when the debuggee's execution continues.
+
+![The data breakpoint is triggered for the first time, following the write of
+the value 0 to the memory area represented by variable _foo_](images/data-breakpoint-first-hit.png)
+
+Now let's continue the debuggee's execution by pressing _F5_ again. What
+happens is interesting: the breakpoint paused the program outside of _main_'s
+implementation, where there's no breakpoint setup. 
+
+![The data breakpoint is hit a second time outside of _main_'s
+implementation](images/data-breakpoint-second-hit.png)
+
+When we look at the callstack, the reason why the breakpoint triggered is
+clear: _ChangeData_ wrote to the memory area represented by the variable
+_foo_.
+
+![The callstack at the time of the data breakpoint's second hit](images/data-breakpoint-second-hit-callstack.png)
+
+If you continue pressing _F5_ to resume the debuggee's execution, the same
+data breakpoint will be triggered every time some data is written to the
+memory identified by _foo_, as expected.
+
+### Choosing your data breakpoints' size carefully
+
+Data breakpoints' size is four bytes by default. It works well for
+four-bytes integer data like the data represented by variable _foo_ in our
+_Breakpoints_ project. However, choosing the right size for your data
+breakpoints is key. As we'll see in this section.
+
+Let's re-use the data breakpoint that was created earlier and change its size
+to one byte. In order to do so, stop the current debugging session and restart
+it by pressing _F5_. The debugger should pause when hitting the location
+breakpoint set at the beginning of _main_'s implementation. Go to the
+_Breakpoints_ window by clicking on _DEBUG_ -> _Windows_ -> _Breakpoints_. The
+data breakpoint created earlier is still present, but deactivated:
+
+![Data breakpoints are deactivated upon restarting a debugging session](images/data-breakpoint-deactivated-after-restart.png)
+
+Data breakpoints need to be re-enabled every time a debugging session starts.
+Even worse, unless the _Randomized Base Address_ linker properties' option is
+disabled (which is the case in our _Breakpoints_ project, but not by default),
+any address that is referred to by the debugger will change between debugging
+sessions. To learn more about these limitations and how to overcome it, at
+least partially, go to the section entitled [Persistence accross debugging
+sessions](#data-breakpoints-persistence-accross-debugging-sessions). For now,
+let's just re-enable it and change its size to 1. In the same _Breakpoints_
+window, right click on the disabled data breakpoint and click on
+_Location..._:
+
+![To edit a data breakpoint's address, click on Location...](images/data-breakpoint-edit-location.png)
+
+The same dialog as when creating a new data breakpoint appears. Change the
+"Byte count" input text field from 4 to 1:
+
+![Changing a data breakpoint's size](images/data-breakpoint-edit-size.png)
+
+Click OK and start debugging the program by pressing F5. The data breakpoint
+should pause the debuggee in the same situations as before, including when
+_ChangeData_ executes _data = 42;_. Now stop the debugger and change this line
+of code from _data = 42;_ to _data = 0xFF000000;_. Restart the debugging
+process (don't forget to re-enable the data breakpoint). The data breakpoint
+triggers when initializing _foo_ to 0, but it doesn't trigger when calling
+_ChangeData_. 
+
+The reason is data breakpoints trigger _only when new data is written to a
+memory address_. When _data = 0xFF000000;_ is executed, _data_ refers to the
+same data as the _foo_ variable in the _main_ function's scope. _foo_ has
+already been initialized to 0x00000000 (the 32 bits hexadecimal representation
+of 0), and thus writing 0xFF000000 to it only changes the most significant
+byte. Because the data breakpoint now triggers only if one byte changes, and
+the Intel architecture is little-endian, the change to the most significant
+byte of _foo_ does not trigger the data breakpoint.
+
+Change the code to _data = 0x000000FF;_ in _ChangeData_'s implementation,
+restart the debugging session and re-enable the data breakpoint: it will
+trigger again when _ChangeData_ is called.
+
+### How data breakpoints work under the hood {#how-data-breakpoints-work}
+
+We presented earlier [how location breakpoints are implemented using _software
+breakpoints_](#how-location-breakpoints-work). Using the _INT 3_ instruction
+is well suited to trigger a breakpoint when an instruction at a given address
+in the debuggee's code is executed. However, it can't be used to trigger a
+breakpoint depending on some operation performed on the debuggee's data.
+
+With data breakpoints, the CPU needs a way to know for which address(es) a
+breakpoint exception needs to be raised when some memory operation is
+performed. The most convenient and efficient way to store these addresses is
+to use _debug registers_ on the CPU. This is why it is said that data
+breakpoints are implemented with _hardware breakpoints_: they depend on actual
+hardware. Because data breakpoints depend on actual hardware, they are
+[limited both in size and number](#data- breakpoints-size-and-number-
+limitation).
+
+On x86 and x86-64 architectures, there are eight debug registers named _DR0_
+to _DR7_.
+
+_DR7_ is a debug control register that determines what conditions should
+trigger a breakpoint exception:
+
+* When a memory write is performed.
+* When a memory read or a memory write is performed.
+* When an instruction is executed.
+
+Depending on the bits set in _DR7_, registers _DR0_ to _DR3_ have a different
+meaning. If _DR7_ is set to trigger a breakpoint exception when a memory write
+or read is performed, the content of _DR0_ to _DR3_ is used to determine for
+which memory address written to or read from the exception should be raised.
+If _DR7_ is set to trigger when an instruction is executed, memory addresses
+in _DR0_ to _DR3_ are used to determine the addresses in the executable code
+that should trigger the breakpoint when they are executed. It also determines
+the size of the memory area to watch when the mode is set to break on memory
+reads and/or writes. The size is stored as a two bits number but only sizes of
+one, two and four bytes are supported on x86. On x86-64, data breakpoints of 8
+bytes are also supported.
+
+Hardware breakpoints could be used to implement location breakpoints since
+they can trigger a breakpoint exception when a given instruction is executed.
+However, that would limit programmers to use no more than four of them. The
+_INT 3_ instruction is much better suited to implement location breakpoints,
+since it doesn't suffer from this limitation. Thus, one mode of the _DR7_
+register, breaking on instruction execution, is rarely used.
+
+_DR4_ and _DR5_ are not really used, in Intel's own words: "Debug registers
+DR4 and DR5 are reserved when debug extensions are enabled (when the DE flag
+in control register CR4 is set) and attempts to reference the DR4 and DR5
+registers cause invalid-opcode exceptions (#UD). When debug extensions are not
+enabled (when the DE flag is clear), these registers are aliased to debug
+registers DR6 and DR7." 
+
+Finally, _DR6_ is a debug status register that reports the reason why a data
+breakpoint triggered.
+
+To see the data breakpoints' implementation in action with Visual C++'s
+debugger, set the project named "HowDataBreakpoints" work as the startup
+project and open its _main.cpp_ file in the code editor. Then, set a
+breakpoint on the _while_ statement.
+
+![Using the project named "HowDataBreakpointsWork" to illustrate data breakpoints' implementation.](images/how-data-breakpoints-work.png)
+
+Start debugging the program and when the breakpoint is triggered, add a data
+breakpoint by clicking on _DEBUG_ -> _New Breakpoint_ -> _New Data
+Breakpoint..._. Enter an address that is easy to remember for the newly
+created data breakpoint, the size is not important (as long as it's less or
+equal than 4 bytes on x86, and less or equal than 8 bytes on x64). Now press
+_F5_ to continue the debuggee's execution, you should hit the breakpoint again.
+Press _Alt + Tab_ to display the program's output window: you should see the
+address of your data breakpoint in the output. 
+
+Continue adding/disabling/removing data breakpoints and see how it affects the
+output.
+
+### Data breakpoints' limitations
+
+Data breakpoints are very powerful and can help solving issues that standard
+location breakpoints can't. However, because they're based on actual hardware,
+they are by definition limited. This section presents these limitations and
+how to work around them when possible.
+
+#### Triggered only if data changes
+
+One of the most counter-intuitive features of data breakpoints is that they're
+triggered only when data changes, not when any write operation occurs.
+
+#### Persistence accross debugging sessions {#data-breakpoints-persistence-accross-debugging-sessions}
+
+Another irritating characteristic of data breakpoints is that they're always
+disabled when a new debugging session starts. The reason is that most of the
+time, data breakpoints are set on addresses that change every time the program
+is executed. 
+
+Indeed, you may set a data breakpoint on data that is stored in the process'
+heap. Chances are that, during the next run of your program, data stored on
+the heap will change. Any data breakpoint set previously is likely to point to
+different or invalid data.
+
+Another example is if you set a data breakpoint's to break when some global
+data belonging to a DLL is changed. When this DLL is compiled with different
+code  generation settings, chances are the address of the global data will
+change, and your data breakpoints will not trigger as expected.
+
+Even worse, one of Window's security feature randomizes the address space of
+any process so that attackers can't easily guess the address of data when a
+program runs. This means that every time a program is loaded into memory, no
+memory address for any object is the same. Thus, any data breakpoint set
+previously are invalid. This feature can be disabled if you want to avoid
+resetting your data breakpoints' address every time a new debugging session
+starts. Just go to your project's properties, click on "Configuration
+Properties", "Linker", "Advanced" and  choose "No" for the "Randomized Base
+Address" setting:
+
+![Disabling Randomized Base Address for easier data breakpoints usage](images/disable-randomized-base-address.png)
+
+As indicated in the screenshot, this configuration property can be set for
+both optimized and unoptimized builds safely. However, make sure that your
+product is not shipped with this setting enabled, as it would have a negative
+impact on security.
+
+The list of use cases that can invalidate data breakpoints' addresses is long,
+so Visual C++'s developpers decided to disable data breakpoints by default
+when a debugging session starts instead of anwsering countless support
+requests by confused users.
+
+ASLR and ever changing memory addresses
+kernel code and device drivers impacted by data breakpoints
+
+#### Data breakpoints sometimes do not work as expected with optimized code
+
+When compilers optimize code, one of their tool of choice is using the fastest
+unit available to store data. This is why, in optmized builds, a lot of data
+is stored in registers instead of in memory. The problem with this approach
+when debugging is that the debugger cannot be notified when the debuggee
+writes to a register. It can only be notified when the debuggee writes to
+specific addresses in the main memory.
+
+This issue happens only with intermediate data stored on the stack, not with
+data that is stored on the heap and persists for longer than a function call.
+For instance, you won't be able to set a data breakpoint on _foo_'s memory
+address in a "Release" build of the "Breakpoints" project. Indeed, _foo_ has a
+very short life and sits on the stack. However, allocating some data with
+_malloc_ or _new_ and setting a data breakpoint on the returned address should
+work reliably.
+
+As a general rule, you should not use data breakpoints for short lived data
+that is allocated on the stack. You shouldn't need it anyway, because the
+location of the code that changes should be easy to find in the function where
+the data is used.  In these cases, it is most likely a sign that a location
+breakpoint should be used, not a data breakpoint.
+
+#### Number and size limitations {#data-breakpoints-size-and-number-limitation}
+
+As mentionned in the previous section entitled [how data breakpoints work
+](#how-data-breakpoints-work), data breakpoints are implemented using four
+registers holding memory addresses to watch. Debug registers being pieces of
+hardware, this number cannot be extended, and Visual C++'s debugger will show
+an error dialog if you try to set more than four data breakpoints:
+
+![Adding more than 4 data breakpoints results in an error.](images/data-breakpoints-limited-to-4.png)
+
+Moreover, all other data breakpoints' settings, including the size of the
+memory area for which to check write operations, are held in hardware
+registers. For this reason, the size of the memory area that data breakpoints
+can watch is limited to 4 bytes on the x86 platform, and 8 bytes on the x64
+platform.
+
+![Visual C++'s debugger cannot set data breakpoints with a size larger than 4 or 8 bytes depending on the platform.](images/data-breakpoint-too-large.png)
+
+#### Only write operations trigger data breakpoints in Visual C++'s debugger
+
+Although the Intel architecture supports data breakpoints that trigger on read
+operations, Visual C++'s debugger only supports data breakpoints that trigger
+on write operations. However, it is possible to set such data breakpoints
+programmatically, by using the [_SetThreadContext_](http://msdn.microsoft.com/en-us/library/windows/desktop/ms680632%28v=vs.85%29.aspx) API. For more information on how to use this API, Michael Chourdakis has written [a concise tutorial on CodeProjet](http://www.codeproject.com/Articles/28071/Toggle-hardware-data-read-execute-breakpoints-prog?fid=1519331&fr=1&df=90&mpp=25&noise=3&prof=False&sort=Position&view=Normal&spc=Relaxed) with some sample code.
+
+## Setting breakpoints programmatically {#setting-breakpoints-programmatically}
+
+The latest type of breakpoints are breakpoints that are actually triggered by using the debugger's API.
+There are three ways to use this API, and depending on the platforms, some of them are not available:
+
+* Using the INT 3 instruction, only available on x86.
+* Calling the _\_\_debugbreak_ intrinsic.
+* Calling the _DebugBreak_ function.
+
+### Using INT 3
+
+This method is specific to the x86 platform. The reason for this limitation is
+that using the _INT 3_ interrupt requires writing inline assembly, which is
+not supported on the x86-64 platform[^inline-assembly-on-x86-64].
+
+[^inline-assembly-on-x86-64]: Instead of using inline assembly, Microsoft
+suggests to use the compiler's equivalent intrinsics.
+
+To see this type of breakpoint in action, open up the _Breakpoints_ project and 
+uncomment the following line of code:
+
+{title="Using inline assembly to trigger a breakpoint",lang=c++}
+~~~ 
+__asm int 3;
+~~~
+
+Start debugging the program and continue execution until the debugger breaks:
+
+![The debugger breaks on a breakpoint set using inline assembly](images/inline-asm-breakpoint.png)
+
+Now press Alt + 8 to go to the disassembly window to see what code was
+generated by the _\_\_asm int 3;_ instruction:
+
+![The disassembly window shows us what binary code was generated for the inline breakpoint.](images/inline-asm-breakpoint-disassembly.png)
+
+Without too much surprise, the compiler generated the _0xCC_ opcode, the same
+one used by Visual C++'s debugger to set new location breakpoints during
+debugging sessions.
+
+### Using the compiler's _\_\_debugbreak intrinsic
+
+The x86-64 platform does not support inline assembly. However, programmers can
+use Visual C++'s compiler's _\_\_debugbreak_ intrinsic to achieve the same
+thing. Open up the _Breakpoints_ project and start a debugging session by pressing _F5_. Continue execution until the debugger breaks on the call to _\_\_debugbreak_:
+
+![The debugger breaks on the _\_\_debugbreak_ intrinsic.](images/debugbreak-intrinsic.png)
+
+Now, press Alt + 8 to display the disassembly window:
+
+![The _\_\_debugbreak_ intrinsic generates the same INT 3 instruction used by the debugger to set location breakpoints.](images/debugbreak-intrinsic-disassembly.png)
+
+### Using the _DebugBreak_ system function
+
+The latest way to programmatically set a breakpoint is to use the _DebugBreak_ system function.
+If the _Breakpoints_ project is still being debugged, simply continue the execution until you break on the call to _DebugBreak_:
+
+![The debugger breaks on the call to the _DebugBreak_ system function.](images/debugbreak-function.png)
+
+There are two differences between this method and the two previous ones:
+
+* The debugger breaks _inside_ the call to _DebugBreak_, as the next call stack window's screenshot indicate.
+* If _DebugBreak_ is called when the program is not run via the debugger, then an exception will be thrown.
+
+If this exception is not caught by the program, it will abort it. This is the reason why, in the _Breakpoints_ project, the call to _DebugBreak_ is done within an _if (IsDebuggerPresent())_ condition.
+
+![A screenshot of the callstack window when the debugger breaks because of call to _DebugBreak_.](images/debugbreak-function-callstack.png)
+
+## Resources
+
+* The [Intel Architecture Software Developer manual](http://www.intel.com/content/www/us/en/processors/architectures-software-developer-manuals.html), Volume 3, chapter 17. Contains in-depth documentation about how Intel CPUs support breakpoints.

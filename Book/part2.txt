@@ -1,0 +1,16 @@
+-# Advanced debugging tools
+
+Visual C++'s debugger offers a great experience out of the box. The compiler,
+the debugger and the user interface are very well integrated. It's very easy
+to get started and debug programs. However, what a developer typically uses is
+just the tip of the iceberg. Many advanced debugging tools are hidden and/or
+undocumented. In this section, we will show you these hidden tools and how to
+use them. Your productivity when debugging issues will increase significantly,
+and it will make bugs that were hard to investigate much more approachable.
+
+Whenever possible, implementation details of the debugger's internals will be
+presented. These details are both useful to know when solving issues requiring
+low-level skills and fun to learn.
+
+Let's start with one of my favorite advanced debugging tools: advanced
+breakpoints.

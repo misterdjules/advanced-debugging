@@ -1,0 +1,25 @@
+# Debugger intrinsics functions {#debugger-instrinsics}
+
+Debugger intrinsics functions allow you to call C/C++ functions from within the debugger
+without altering the state of the application. They are available anywhere you can evaluate an expression, including the breakpoints condition evaluator, watch window's expressions and immediate window's expressions.
+
+Below is a table that summarizes all available debugger instrinsics functions.
+
+|Category             | Function names                      |
+|---------------------|-------------------------------------|
+|String length        | _strlen_, _wcslen_, _strnlen_,      | 
+|                     | _wcsnlen_               		    |
+|---------------------|-------------------------------------|
+|String comparison    | _strcmp_, _wcscmp_, _stricmp_,      |
+|					  | _\_stricmp_, _\_strcmpi_, _wcsicmp_,|
+|                     | _\_wcscmpi_, _\_wcsnicmp_,          |
+|                     | _strncmp_, _wcsncmp_, _strnicmp_,   |
+|                     | _wcsnicmp_                          |
+|---------------------|-------------------------------------|
+|String search        | _strchr_, _wcschr_, _strstr_,       |
+|                     | _wcsstr_                            |
+|                     |                                     |
+|---------------------|---------------------|---------------|
+|Win32                | _GetLastError()_, _TlsGetValue()_   |
+|---------------------|-------------------------------------|
+|Miscellaneous        | _\_\_log2_                          | 

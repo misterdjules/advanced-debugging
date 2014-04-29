@@ -1,0 +1,38 @@
+# Pseudo registers {#pseudo-registers}
+
+Pseudo registers, or _pseudo variables_ as they are sometimes called in Visual Studio's documentation.
+are expressions that evaluate to specific values that can be very useful when debugging programs.
+These expressions can be entered almost anywhere expressions are accepted: in the watch window, the immediate window and breakpoints conditions.
+
+When debugging optimized builds, the _$registername_ and _@registername_ expressions are particularily useful.
+
+|Expression       | Function                                                         |
+|-----------------|------------------------------------------------------------------|
+|$err             | Contains the latest error code set with SetLastError.            |
+|                 | This is also the value that would be returned by GetLastError(). | 
+|                 | Use the ",hr" format modifier in the watch window to see the     |
+|                 | symbolic name of this value. For instance, if the last error has |
+|                 | value _3_, then the expression _$err,hr_ in the watch window will|
+|                 | display _ERROR_PATH_NOT_FOUND_.                                  |
+|-----------------|------------------------------------------------------------------|
+|$handles         | Contains the number of handles created by your application.      |
+|-----------------|------------------------------------------------------------------|
+|$vframe          | Contains the address of the current stack frame                  |
+|-----------------|------------------------------------------------------------------|
+|$tid             | Contains the current's thread ID.                                |
+|-----------------|------------------------------------------------------------------|
+|$env             | Contains the environment variables passed to the current process.|
+|-----------------|------------------------------------------------------------------|
+|$cmdline         | Contains the command line string that launched the program       |
+|-----------------|------------------------------------------------------------------|
+|$pid             | Contains the current process' id                                 |
+|-----------------|------------------------------------------------------------------|
+|$registername    | For instance, _$eax_ or _@eax_ both contains                     |
+|or @registername | the value of that the EAX register holds. The                    |
+|                 | _$_ or _@_ prefixes are actually not needed, as                  |
+|                 | long as no variable with the same name exists.                   |
+|-----------------|------------------------------------------------------------------|
+|$clk             | Contains the time in clock cycles.                               |
+|-----------------|------------------------------------------------------------------|
+|$user            | Contains a data structure that represents the user account       |
+|                 | running the application.                                         |

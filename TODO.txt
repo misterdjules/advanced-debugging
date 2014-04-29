@@ -1,5 +1,18 @@
 Top priority:
 -------------
+* Book: mention that int 3 is used as padding instructions and default value for uninitialized variables in debug builds, show example disassembly windows.
+* Book: mention use of RF (Resume Flag) when continuing execution or single stepping to avoid breakpoint loop.
+* Book: mention difference between "software" breakpoints and "hardware" breakpoints, with their pros and cons.
+* Book: add mention that the way debuggers work setting specific instructions in the code makes all threads interrupt since
+the code is shared by all threads.
+* Book: Add mention that Visual C++ only supports data breakpoints that trigger on memory write operations, whereas the x86 and x64 architectures support triggering upon memory reads and execution also. See http://www.codeproject.com/Articles/28071/Toggle-hardware-data-read-execute-breakpoints-prog?fid=1519331&fr=30 for more information.
+* Book: Mention ASLR and setting data breakpoints that persist accross restarts.
+* Book: Add code in Breakpoints project where we write single bytes in a char[] table but we set a data breakpoints with size 4 bytes: show that it breaks four times.
+* Book: Add mention of "Data breakpoints trigger only when _new_ data is written but WinDBG triggers all the time".
+* Book: Add mention of mixing data breakpoints with conditions.
+* Book: Ajouter que lors appels fonctions internes, conventions appels pas utiles et pas toujours optimales, trouver exemple de code genere par visual c++ (static functions?).
+* Book: try adding data breakpoint on code address and see what happens.
+
 * Complete FPU project.
 
 * Resources to review:
@@ -26,6 +39,25 @@ Top priority:
 	 - http://msdn.microsoft.com/en-us/magazine/cc301374.aspx
 	 - http://msdn.microsoft.com/en-us/library/7kcdt6fy.aspx
 	 - http://www.ray.masmcode.com/fpu.html
+	 - http://www.highprogrammer.com/alan/windev/visualstudio.html
+	 - http://www.codeproject.com/Articles/28071/Toggle-hardware-data-read-execute-breakpoints-prog?fid=1519331&fr=1&df=90&mpp=25&noise=3&prof=False&sort=Position&view=Normal&spc=Relaxed
+	 - http://www.nynaeve.net/?p=81
+	 - http://www.nynaeve.net/?p=80
+	 - http://www.nynaeve.net/?p=79
+	 - http://www.nynaeve.net/?p=48
+	 - http://www.nynaeve.net/?p=42
+	 - http://www.nynaeve.net/?p=39
+	 - http://www.nynaeve.net/?p=29
+	 - http://www.nynaeve.net/?p=64
+	 - http://www.nynaeve.net/?p=98
+	 - http://www.nynaeve.net/?p=97
+	 - http://www.nynaeve.net/?p=91
+	 - http://www.nynaeve.net/?p=66
+	 - http://www.nynaeve.net/?p=83
+	 - http://www.nynaeve.net/?p=117
+	 - http://eli.thegreenplace.net/2011/01/27/how-debuggers-work-part-2-breakpoints/
+* Debugging API:
+ 	- http://msdn.microsoft.com/en-us/library/ms809754.aspx
  
 * Add a mention of "Configuration Properties" -> "C/C++" -> "Code Generation" -> "Enable Enhanced Instruction Set" to the list of
 configuration properties that have an impact on generated assembly code and thus on debugging. Use the "FPU" project as an example

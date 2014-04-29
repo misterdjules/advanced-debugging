@@ -1,0 +1,8 @@
+# Multi-threading advanced debug tools {#multi-threading-advanced-debug-tools}
+
+## Debuggers and threads
+
+Before debugging multi-threaded applications, it is very important to
+understand the relationship between the debugger, the debuggee and its
+threads. When a breakpoint is hit in any given thread of a multi-threaded
+application, all threads are stopped.

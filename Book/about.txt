@@ -11,6 +11,7 @@ Advanced debugging is about knowing all hidden and undocumented tools, as well a
 ## How is advanced debugging going to help you?
 
 Advanced debugging will add lots of practical tools to your debugging belt. These tools will help you be much more productive during your debugging sessions. They will help you:
+
 * Be quicker to find the cause of bugs that were tedious to find.
 * Find the cause of many bugs that would otherwise be left as mysterious accidents.
 
@@ -54,8 +55,10 @@ In order to stay focused on taking your debugging skills to the next level, only
 The content is split into two big parts: advanced debugging tools and debugging optimized builds using disassembly. These two parts can be read in any order, although the tools presented in the first part are very useful when studying part two.
 
 The first part will guide you to setup the debugger correctly so that you can:
-* do live debugging session of unoptimized and optimized builds.
-* do post-mortem debugging using crash dumps produced by unoptimized and optimized builds.
+
+* Do live debugging session of unoptimized and optimized builds.
+* Do post-mortem debugging using crash dumps produced by unoptimized and optimized builds.
+
 This is a pre-requisite for being able to use Visual C++'s debugging tools at their full potential. It is recommended not to skip this section.
 
 Part two is a tour of hidden or undocumented features of Visual C++ 2013's integrated debugger. Almost all debugging tools have advanced uses that can significantly improve your productivity when debugging code. You will learn about hidden tools for the watch window and breakpoints. "Edit and continue", a tool that allows you to change code when debugging programs will be presented. The debugger API will help you programmaticaly trigger some of the debugger's behavior.

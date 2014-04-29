@@ -2,8 +2,11 @@
 * This project is a playground to experiment with all kinds of breakpoints.
 * 
 * There's a loop that can be used to experiment with breakpoints conditions, traces and actions.
+*
 * There's also a function that changes some data. It is here to experiment with
-* "data" breakpoints. Finally, we show three examples of how to set breakpoints programmatically:
+* "data" breakpoints. 
+*
+* Finally, we show three examples of how to set breakpoints programmatically:
 * - using inline assembly (note however that __asm int 3 does not work on the x64 platform).
 * - using one of the compilers "intrinsincs": __debugbreak.
 * - using the DebugBreak function.
@@ -22,6 +25,20 @@
 
 #include <Windows.h>
 #include <cassert>
+#include <iostream>
+
+class SomeClass
+{
+public:
+	SomeClass() : m_someValue(0) { }
+	void increaseSomeValue()
+	{ 
+		++m_someValue; 
+	}
+
+private:
+	int m_someValue;
+};
 
 void ChangeData(int& data)
 {
@@ -31,16 +48,25 @@ void ChangeData(int& data)
 int main()
 {
 	int foo = 0;
+	char*	strings[]	= { "foo", "bar", "baz" };
+
+	ChangeData(foo);
 	
 	for (int loopFoo = 0; loopFoo < 10; ++loopFoo)
 	{
 		foo = foo * loopFoo;
+		char* currentString = strings[loopFoo % 3];
+		std::cout << "Current string: " << currentString << std::endl;
 	}
+
+	SomeClass someInstance;
+	someInstance.increaseSomeValue();
+	someInstance.increaseSomeValue();
 
 	// Inline assembly like __asm int 3 below does not work when compiling
 	// for the x64 platform. However, you can use the compiler's intrinsics like __debugbreak:
 	// http://msdn.microsoft.com/en-us/library/vstudio/26td21ds%28v=vs.100%29.aspx	
-	// __asm int 3
+	// __asm int 3;
 
 	__debugbreak();
 

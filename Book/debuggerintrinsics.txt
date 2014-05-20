@@ -1,4 +1,4 @@
-# Debugger intrinsics functions {#debugger-instrinsics}
+# Debugger intrinsics functions {#debugger-intrinsics}
 
 Debugger intrinsics functions allow you to call C/C++ functions from within the debugger
 without altering the state of the application. They are available anywhere you can evaluate an expression, including the breakpoints condition evaluator, watch window's expressions and immediate window's expressions.

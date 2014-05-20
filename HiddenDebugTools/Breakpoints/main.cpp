@@ -48,10 +48,15 @@ void ChangeData(int& data)
 int main()
 {
 	int foo = 0;
-	char*	strings[]	= { "foo", "bar", "baz" };
+	char* strings[] = { "foo", "bar", "baz" };
+
+	char buffer[1024];
+	memset(buffer, 0, sizeof(buffer));
 
 	ChangeData(foo);
-	
+
+	// A loop to illustrate how conditional breakpoints
+	// can be useful
 	for (int loopFoo = 0; loopFoo < 10; ++loopFoo)
 	{
 		foo = foo * loopFoo;
@@ -59,19 +64,32 @@ int main()
 		std::cout << "Current string: " << currentString << std::endl;
 	}
 
+	foo = 42;
+
+	// Change data in "buffer" to test
+	// conditional breakpoints using the "Has Changed" option
+	for (unsigned int i = 0; i < 10; ++i)
+	{
+		buffer[512 + i] = '0' + i;
+	}
+
+	buffer[512] = 'o';
+	
 	SomeClass someInstance;
 	someInstance.increaseSomeValue();
 	someInstance.increaseSomeValue();
 
-	// Inline assembly like __asm int 3 below does not work when compiling
-	// for the x64 platform. However, you can use the compiler's intrinsics like __debugbreak:
-	// http://msdn.microsoft.com/en-us/library/vstudio/26td21ds%28v=vs.100%29.aspx	
-	// __asm int 3;
-
-	__debugbreak();
-
 	if (IsDebuggerPresent())
+	{
+		// Inline assembly like __asm int 3 below does not work when compiling
+		// for the x64 platform. However, you can use the compiler's intrinsics like __debugbreak:
+		// http://msdn.microsoft.com/en-us/library/vstudio/26td21ds%28v=vs.100%29.aspx	
+		// __asm int 3;
+
+		__debugbreak();
+
 		DebugBreak();
+	}
 
 	ChangeData(foo);
 
@@ -81,6 +99,10 @@ int main()
 	foo = 0;
 
 	ChangeData(foo);
+	
+	free(strings[0]);
+	free(strings[1]);
+	free(strings[2]);
 
 	return 0;	
 }

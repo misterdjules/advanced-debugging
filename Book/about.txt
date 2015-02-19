@@ -2,68 +2,162 @@
 
 ## What is advanced debugging?
 
-Visual C++ 2013 is a great IDE for C++ programmers. The integration of its debugger into the whole user experience is remarkable. Most of the time, debugging feels natural and very productive. However, only a fraction of the tools are visible on the surface. There's a lot more useful tools available that are either hidden or not documented. For this reason, most programmers only scratch the surface of what's possible when debugging native programs using Visual C++. For instance, did you know that you can ask the debugger to break anytime a given variable is written to by the program, allowing you to precisely find the cause of a memory overwrite without having to step through your code for hours?
+Visual C++ 2013 is a great IDE for C++ programmers. The integration of its
+debugger into the whole user experience is remarkable. Most of the time,
+debugging feels natural and very productive. However, only a fraction of the
+tools are visible on the surface. Many more are either hidden or not
+documented. For this reason, most programmers only scratch the surface of
+what's possible when debugging native programs using Visual C++. For instance,
+did you know that you can ask the debugger to break anytime a given variable
+is written to by the program, allowing you to precisely find the cause of a
+memory overwrite without having to step through your code for hours?
 
-Moreoever, Visual C++'s debugger can sometimes appear like a black box where magic happens. How does the debugger knows the value of variables when debugging, and why is it not able to inspect these values when debugging optimized builds? How does the debugger find the value of the `this` pointer when debugging C++ method calls? Why this value isn't available when debugging optimized builds? All these unanswered questions result in a lot of false beliefs, like the fact that optimized builds (or "Release" builds) cannot be debugged.
+Moreover, Visual C++'s debugger can sometimes appear like a black box where
+magic happens. How does the debugger knows the value of variables when
+debugging, and why is it not able to inspect these values when debugging
+optimized builds? How does the debugger find the value of the `this` pointer
+when debugging C++ method calls? Why isn't it available when debugging
+optimized builds? All these unanswered questions result in a lot of false
+beliefs, like the fact that optimized builds (or "Release" builds) cannot be
+debugged.
 
-Advanced debugging is about knowing all hidden and undocumented tools, as well as understanding how the debugger and programs work under the hood so that you can make the best out of Visual C++'s powerful debugger. It will allow you to answer all questions above and then some.
+Advanced debugging is about knowing all hidden and undocumented tools, as well
+as understanding how the debugger and programs work under the hood so that you
+can make the best out of Visual C++'s powerful debugger. It will allow you to
+answer all questions above and then some.
 
 ## How is advanced debugging going to help you?
 
-Advanced debugging will add lots of practical tools to your debugging belt. These tools will help you be much more productive during your debugging sessions. They will help you:
+Advanced debugging will add lots of practical tools to your debugging belt.
+These tools will help you be much more productive during your debugging
+sessions. They will help you:
 
 * Be quicker to find the cause of bugs that were tedious to find.
 * Find the cause of many bugs that would otherwise be left as mysterious accidents.
 
-It will also make you so much more comfortable with Visual C++'s debugger that no debugging endeavor will seem impossible or scary.
-If debugging a crash from an optimized build sounds like a receipe for a bad day, this book will make it much more aproachable.
+It will also make you so much more comfortable with Visual C++'s debugger that
+no debugging endeavor will seem impossible or scary. If debugging a crash from
+an optimized build sounds like a receipe for a bad day, this book will make it
+much more aproachable.
 
-Your understanding of lower level mechanisms, like how programms written in C and C++ actually work under the hood, will improve significantly. For instance, you will learn how function and methods calls can work reliably accross DLLs without the need for recompilation. As a consequence, you will become a better programmer, even when not using C++.
+Your understanding of lower level mechanisms, like how programs written in C
+and C++ actually work under the hood, will improve significantly. For
+instance, you will learn how function and methods calls can work reliably
+accross DLLs without the need for recompilation. As a consequence, you will
+become a better programmer, even when not using C++.
 
-Finally and most importantly, mastering advanced debugging will help you never say "I don't know what happened" when encountering a crash or a bug anymore.
+Finally and most importantly, mastering advanced debugging will help you never
+say "I don't know what happened" when encountering a crash or a bug anymore.
 
 ## Who is this book for?
 
-Programmers using Visual C++ to build native application will benefit the most from this book. The first part of the book is architecture agnostic, but the second part on disassembly debugging focuses on the x86 and x64 architectures. Programmers who target other architectures such as PowerPC, for instance video game programmers working on the XBox 360 and Playstation 3 game consoles, will however be able to reuse most of the content. For video game programmers, note that the latest generation of gaming consoles from SONY and Microsoft are based on the x64 architecture, which this book covers comprehensively.
+Programmers using Visual C++ to build native application will benefit the most
+from this book. The focus is on the x86 and x64 architectures. However,
+programmers who target other architectures such as PowerPC, for instance video
+game programmers working on the XBox 360 and Playstation 3 game consoles, will
+be able to reuse most of the content. For video game programmers, note that
+the latest generation of gaming consoles from SONY and Microsoft are based on
+the x64 architecture, which this book covers comprehensively.
 
-C and C++ programmers not using Visual studio will be able to reuse the second part of the book on disassembly debugging and reverse engineering with their favorite programming environment.
+C and C++ programmers not using Visual studio will be able to reuse the second
+part of the book on disassembly debugging and reverse engineering with their
+favorite programming environment.
 
-Advanced debugging can benefit any programmer, even if they're not using C or C++ as their main programming language. Most concepts presented in this book apply to any programming environment. 
+Advanced debugging can benefit any programmer, even if they're not using C or
+C++ as their main programming language. Most concepts presented in this book
+apply to any programming environment.
 
 ## Prerequisites
 
-The first chapter of the book, entitled "Advanced Debugging Tools", describes advanced usage of specific Visual C++ debugging tools that cannot be found anywhere else. For the remaining of the book, although most concepts are valid with any C/C++ toolchain, they are also illustrated using Visual C++ 2013.
+The first chapter of the book, entitled "Advanced Debugging Tools", describes
+advanced usage of specific Visual C++ debugging tools. For the remaining of
+the book, although most concepts are valid with any C/C++ toolchain, they are
+also illustrated using Visual C++ 2013.
 
-You will also need to have some basic understanding of how to write programs in C or C++ for the Windows platform using Visual C++. This book assumes that you know how to write, compile and debug at least simple programs. You don't need to know advanced C or C++ programming, knowledge of basic concepts like function calls, simple data manipulation and libraries is more than enough.
+You will also need to have some basic understanding of how to write programs
+in C or C++ for the Windows platform using Visual C++. This book assumes that
+you know how to write, compile and debug at least simple programs. You don't
+need to know advanced C or C++ programming, knowledge of basic concepts like
+function calls, simple data manipulation and libraries is more than enough.
 
-Some tools and concepts presented in this book are very low level. For instance, most all chapters except chapter 2 use assembly language extensively. You will need to be willing to take a steep learning curve if you haven't been exposed to assembly programming and other low level tools before. Don't worry though, we will introduce these concepts gently as we progress through the material.
+Some tools and concepts presented in this book are very low level. For
+instance, most all chapters except chapter 2 use assembly language
+extensively. You will need to be willing to take a steep learning curve if you
+haven't been exposed to assembly programming and other low level tools before.
+Don't worry though, we will introduce these concepts gently as we progress
+through the material.
 
-Last but not least, having a taste for low level mechanisms and a curiosity for how and why things work in general will make the reading experience much more pleasant. If you'd rather know how to use programming tools without understanding how things work under the hood, chances are you will not enjoy most of what the book has to offer.
+Last but not least, having a taste for low level mechanisms and a curiosity
+for how and why things work in general will make the reading experience much
+more pleasant. If you'd rather know how to use programming tools without
+understanding how things work under the hood, chances are you will not enjoy
+most of what the book has to offer.
 
 ## What this book doesn't cover
 
 ### Tools don't replace methodology
 
-Debugging is the process of finding the cause of issues in some piece of software so that they can be fixed in a future release. This implies solving problems, which in itself cannot be done by only using tools. A proper methodology and reasonning process has to coordonate the use of tools to reach the goal of finding why an issue occurs. The most advanced debugging tools cannot make up for the lack of methodology. Advanced debugging tools can dramatically improve your debugging process, but they are not sufficient.Other books cover methods for debugging software. An excellent example is [Debugging Applications by John Robbins](http://www.amazon.com/gp/product/0735608865).
+Debugging is the process of finding the cause of issues in some piece of
+software so that they can be fixed in a future release. This implies solving
+problems, which in itself cannot be done only by using tools. A proper
+methodology and reasonning process have to coordinate the use of tools to
+reach the goal of finding why an issue occurs. The most advanced debugging
+tools cannot make up for the lack of methodology. Advanced debugging tools can
+dramatically improve your debugging process, but they are not sufficient.
+Other books cover methods for debugging software. An excellent example is
+[Debugging Applications by John Robbins](http://www.amazon.com/gp/product/0735608865).
 
 ### Not an hardware architecture or assembly language reference
 
-In order to stay focused on taking your debugging skills to the next level, only concepts that are relevant to debugging are presented. This means that only a very small fraction of some subjects like hardware architecture or assembly language is covered. Unless you need to write entire programs using assembly language, this will be more than enough. If you're looking for assembly language or hardware reference materials, please refer to the [bibliography](#chapter-bibliography). 
+In order to stay focused on taking your debugging skills to the next level,
+only concepts that are relevant to debugging are presented. This means that
+only a very small fraction of some subjects like hardware architecture or
+assembly language is covered. Unless you need to write entire programs using
+assembly language, this will be more than enough. If you're looking for
+assembly language or hardware reference materials, please refer to the
+[bibliography](#chapter-bibliography).
 
 ## How this book is organized
 
-The content is split into two big parts: advanced debugging tools and debugging optimized builds using disassembly. These two parts can be read in any order, although the tools presented in the first part are very useful when studying part two.
+The content is split into two big parts: advanced debugging tools and
+debugging optimized builds using disassembly. These two parts can be read in
+any order, although the tools presented in the first part are very useful when
+studying part two.
 
 The first part will guide you to setup the debugger correctly so that you can:
 
 * Do live debugging session of unoptimized and optimized builds.
 * Do post-mortem debugging using crash dumps produced by unoptimized and optimized builds.
 
-This is a pre-requisite for being able to use Visual C++'s debugging tools at their full potential. It is recommended not to skip this section.
+This is a pre-requisite for being able to use Visual C++'s debugging tools at
+their full potential. It is recommended not to skip this section.
 
-Part two is a tour of hidden or undocumented features of Visual C++ 2013's integrated debugger. Almost all debugging tools have advanced uses that can significantly improve your productivity when debugging code. You will learn about hidden tools for the watch window and breakpoints. "Edit and continue", a tool that allows you to change code when debugging programs will be presented. The debugger API will help you programmaticaly trigger some of the debugger's behavior.
+Part two is a tour of hidden or undocumented features of Visual C++ 2013's
+integrated debugger. Almost all debugging tools have advanced uses that can
+significantly improve your productivity when debugging code. In chapter 2, you
+will learn about how breakpoints work under the hood and their advanced usage.
+Chapter 3 will present the watch window's useful hidden features such as type
+casting and calling functions. The fourth chapter will introduce a tool named
+"Set next statement" and how it can be used to better navigate through your
+program's execution flow. Chapter 5, entitled "Multithread debugging tools"
+will show you how to better debug multi-threaded applications. Chapter 6
+covers "Edit and Continue", a compilation and linking option that allows
+programmers to change code when a program is being debugged. Finally, chapter
+7 will present some of the debugger's API that can be used in your code.
 
-The third and last part starts with an overview of assembly languages concepts in the fourth chapter. This overview will teach you anything you need to know to be able to debug programs using the "Disassembly" tools available in Visual C++'s debugger. The next chapter will cover the inner workings of the debugger, which will help you understand the impact of the debugger on your program. It will also clear up some confusing information that can show up when using disassembly debugging. Finally, the last chapter will present concrete techniques to debug common issues that arise when debugging optimized builds, like finding function parameters on the stack, looking up the "this" pointer for C++ methods and local variables.
+The third and last part starts at chapter 8 with an overview of assembly
+languages concepts. This overview will teach you anything you need to know to
+be able to debug programs using the "Disassembly" tools available in Visual
+C++'s debugger. The next chapter will cover the inner workings of the
+debugger, which will help you understand its impact on your
+program. It will also clear up some confusing information that can show up
+when using disassembly debugging. Finally, the last chapter will present
+concrete techniques to debug common issues that arise when debugging optimized
+builds, like finding function parameters on the stack, looking up the "this"
+pointer for C++ methods and local variables.
 
-An effort has been made to make this book as concise and focused as possible. As a consequence, a lot of information that is related to the matter covered in these pages but not essential has to be found elsewhere. For this reason, a curated bibliography with descriptions can be found at the end of this book.
+An effort has been made to make this book as concise and focused as possible.
+As a consequence, a lot of information that is related to the matter covered
+in these pages but not essential has to be found elsewhere. For this reason, a
+curated bibliography with descriptions can be found at the end of this book.
 
